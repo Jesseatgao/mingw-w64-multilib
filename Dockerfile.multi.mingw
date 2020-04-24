@@ -36,7 +36,7 @@ RUN	yum install -y gcc gcc-c++ make bison flex gperf patch autoconf automake lib
 	&& cd $BUILDROOT/binutils \
 	&& $SRC/binutils-2.32/configure --prefix=$PREFIX --with-sysroot=$PREFIX \
 		--target=$TARGET --enable-targets=x86_64-w64-mingw32,i686-w64-mingw32 \
-	&& make -j $(expr `nproc` - 1) && make install \
+	&& make -j `nproc` && make install \
 \
 	&& mkdir -p $BUILDROOT/headers \
 	&& cd $BUILDROOT/headers \
@@ -52,16 +52,16 @@ RUN	yum install -y gcc gcc-c++ make bison flex gperf patch autoconf automake lib
 	&& $SRC/gcc-8.2.0/configure --build=$BUILD --target=$TARGET \
 		--enable-targets=x86_64-w64-mingw32,i686-w64-mingw32 --prefix=$PREFIX --with-sysroot=$PREFIX \
 		--enable-languages=c,c++ --enable-multiarch --enable-multilib --with-multilib-list=m32,m64 --enable-64bit \
-	&& make all-gcc -j $(expr `nproc` - 1) && make install-gcc \
+	&& make all-gcc -j `nproc` && make install-gcc \
 \
 	&& mkdir -p $BUILDROOT/mingw \
 	&& cd $BUILDROOT/mingw \
 	&& $SRC/mingw-w64-v6.0.0/configure --prefix=$PREFIX/$TARGET --with-sysroot=$PREFIX --host=$TARGET  \
 		--enable-lib32 --enable-lib64 --enable-multilib \
-	&& make -j $(expr `nproc` - 1) && make install \
+	&& make -j `nproc` && make install \
 \
 	&& cd $BUILDROOT/gcc \
-	&& make -j $(expr `nproc` - 1) && make install \
+	&& make -j `nproc` && make install \
 \
 	&& rm -rf $BUILDROOT/binutils $BUILDROOT/headers $BUILDROOT/gcc $BUILDROOT/mingw \
 	&& rm -rf $SRC \
