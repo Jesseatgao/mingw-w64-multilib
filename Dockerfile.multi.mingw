@@ -1,0 +1,70 @@
+
+# Arch: x86_64
+FROM centos:7
+
+ARG HOST=x86_64-unknown-linux-gnu
+ARG BUILD=x86_64-unknown-linux-gnu
+ARG TARGET=x86_64-w64-mingw32
+ARG BUILDROOT=/usr/local
+ARG SRC=$BUILDROOT/_src
+ARG MINGW=$BUILDROOT/mingw32
+ARG PREFIX=$MINGW
+
+# ARG CFLAGS="-Os -ffunction-sections -fdata-sections"
+# ARG CXXFLAGS="-Os -ffunction-sections -fdata-sections"
+# ARG LDFLAGS="-Wl,--gc-sections"
+
+ARG CFLAGS="-Os"
+ARG CXXFLAGS="-Os"
+
+ENV PATH $PREFIX/bin:$PATH
+
+
+RUN	yum install -y gcc gcc-c++ make bison flex gperf patch autoconf automake libtool \
+		gettext-devel bzip2 file texinfo libmpc-devel glibc-devel glibc-devel.i686 libgcc.i686 \
+	&& yum clean all \
+\
+    && mkdir -p $MINGW && mkdir -p $SRC && cd $SRC \
+	&& curl -L -O https://mirror.bjtu.edu.cn/gnu/binutils/binutils-2.32.tar.xz \
+	&& curl -L -O https://mirror.bjtu.edu.cn/gnu/gcc/gcc-8.2.0/gcc-8.2.0.tar.xz \
+	&& curl -L -O http://sourceforge.mirrorservice.org/m/mi/mingw-w64/mingw-w64/mingw-w64-release/mingw-w64-v6.0.0.tar.bz2 \
+	&& tar Jxvf binutils-2.32.tar.xz \
+	&& tar Jxvf gcc-8.2.0.tar.xz \
+	&& tar jxvf mingw-w64-v6.0.0.tar.bz2 \
+\
+	&& mkdir -p $BUILDROOT/binutils \
+	&& cd $BUILDROOT/binutils \
+	&& $SRC/binutils-2.32/configure --prefix=$PREFIX --with-sysroot=$PREFIX \
+		--target=$TARGET --enable-targets=x86_64-w64-mingw32,i686-w64-mingw32 \
+	&& make -j $(expr `nproc` - 1) && make install \
+\
+	&& mkdir -p $BUILDROOT/headers \
+	&& cd $BUILDROOT/headers \
+	&& $SRC/mingw-w64-v6.0.0/mingw-w64-headers/configure --prefix=$PREFIX/$TARGET --host=$TARGET --build=$BUILD \
+	&& make install \
+\
+	&& ln -s $PREFIX/$TARGET $PREFIX/mingw \
+	&& mkdir -p $PREFIX/$TARGET/lib && mkdir -p $PREFIX/$TARGET/lib32 \
+	&& ln -s $PREFIX/$TARGET/lib $PREFIX/$TARGET/lib64 \
+\
+	&& mkdir -p $BUILDROOT/gcc \
+	&& cd $BUILDROOT/gcc \
+	&& $SRC/gcc-8.2.0/configure --build=$BUILD --target=$TARGET \
+		--enable-targets=x86_64-w64-mingw32,i686-w64-mingw32 --prefix=$PREFIX --with-sysroot=$PREFIX \
+		--enable-languages=c,c++ --enable-multiarch --enable-multilib --with-multilib-list=m32,m64 --enable-64bit \
+	&& make all-gcc -j $(expr `nproc` - 1) && make install-gcc \
+\
+	&& mkdir -p $BUILDROOT/mingw \
+	&& cd $BUILDROOT/mingw \
+	&& $SRC/mingw-w64-v6.0.0/configure --prefix=$PREFIX/$TARGET --with-sysroot=$PREFIX --host=$TARGET  \
+		--enable-lib32 --enable-lib64 --enable-multilib \
+	&& make -j $(expr `nproc` - 1) && make install \
+\
+	&& cd $BUILDROOT/gcc \
+	&& make -j $(expr `nproc` - 1) && make install \
+\
+	&& rm -rf $BUILDROOT/binutils $BUILDROOT/headers $BUILDROOT/gcc $BUILDROOT/mingw \
+	&& rm -rf $SRC \
+	&& strip -s $MINGW/bin/$TARGET-* && strip -s $MINGW/$TARGET/lib/*.dll && strip -s $MINGW/$TARGET/lib32/*.dll \
+	&& cd $MINGW/libexec/gcc/$TARGET/8.2.0 && strip -s cc1 cc1plus collect2 lto-wrapper lto1 \
+	&& echo -e "export PATH=\${PATH}" >> ~/.bashrc
