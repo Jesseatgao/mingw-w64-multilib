@@ -2,6 +2,8 @@
 # Arch: x86_64
 FROM centos:7
 
+SHELL ["/bin/bash", "-c"]
+
 ARG HOST=x86_64-unknown-linux-gnu
 ARG BUILD=x86_64-unknown-linux-gnu
 ARG TARGET=x86_64-w64-mingw32
