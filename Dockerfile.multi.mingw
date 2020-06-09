@@ -25,7 +25,7 @@ ARG GCC_VERSION=8.2.0
 
 RUN	yum install -y centos-release-scl epel-release && yum makecache \
 	&& yum install -y --setopt=tsflags=nodocs gcc gcc-c++ make bison flex gperf patch autoconf automake libtool gettext-devel \
-		bzip2 unzip file texinfo libmpc-devel glibc-devel glibc-devel.i686 libgcc.i686 \
+		bzip2 unzip file texinfo libmpc-devel glibc-devel glibc-devel.i686 libgcc.i686 libstdc++-devel.i686 \
 \
 	&& mkdir -p $MINGW && mkdir -p $SRC && cd $SRC \
 	&& curl -L -O https://ftp.gnu.org/gnu/binutils/binutils-2.32.tar.xz \
