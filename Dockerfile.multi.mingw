@@ -4,7 +4,6 @@ FROM centos:7
 
 SHELL ["/bin/bash", "-c"]
 
-ARG HOST=x86_64-unknown-linux-gnu
 ARG BUILD=x86_64-unknown-linux-gnu
 ARG TARGET=x86_64-w64-mingw32
 ARG BUILDROOT=/usr/local
@@ -12,38 +11,63 @@ ARG SRC=$BUILDROOT/_src
 ARG MINGW=$BUILDROOT/mingw32
 ARG PREFIX=$MINGW
 
-# ARG CFLAGS="-Os -ffunction-sections -fdata-sections"
-# ARG CXXFLAGS="-Os -ffunction-sections -fdata-sections"
-# ARG LDFLAGS="-Wl,--gc-sections"
-
-ARG CFLAGS="-O2"
-ARG CXXFLAGS="-O2"
+ARG CFLAGS=
+ARG CXXFLAGS=
+ARG LDFLAGS=
 
 ENV PATH $PREFIX/bin:$PATH
 
-ARG GCC_VERSION=8.2.0
+ARG GCC_VER=10.1.0
+ARG BINUTILS_VER=2.34
+ARG MPFR_VER=4.0.2
+ARG GMP_VER=6.2.0
+ARG MPC_VER=1.1.0
+ARG ISL_VER=0.21
+
+ARG MINGW_VER=7.0.0
+
 
 RUN	yum install -y centos-release-scl epel-release && yum makecache \
-	&& yum install -y --setopt=tsflags=nodocs gcc gcc-c++ make bison flex gperf patch autoconf automake libtool gettext-devel \
-		bzip2 unzip file texinfo libmpc-devel glibc-devel glibc-devel.i686 libgcc.i686 \
+	&& yum install -y --setopt=tsflags=nodocs devtoolset-9-gcc-c++ devtoolset-9-make bison flex gperf patch autoconf automake \
+		libtool gettext-devel bzip2 unzip file texinfo glibc-devel glibc-devel.i686 llvm-toolset-7.0-cmake rh-ruby26 meson \
+	&& yum localinstall -y https://yum.oracle.com/repo/OracleLinux/OL7/SoftwareCollections/x86_64/getPackage/devtoolset-9-libstdc++-devel-9.1.1-2.6.el7.i686.rpm \
+	&& yum clean all \
+\
+	&& source scl_source enable devtoolset-9 && source scl_source enable rh-ruby26 \
+	&& gem install rake && pip3 install --upgrade --no-cache-dir meson \
+\
 \
 	&& mkdir -p $MINGW && mkdir -p $SRC && cd $SRC \
-	&& curl -L -O https://ftp.gnu.org/gnu/binutils/binutils-2.32.tar.xz \
-	&& curl -L -O https://ftp.gnu.org/gnu/gcc/gcc-$GCC_VERSION/gcc-$GCC_VERSION.tar.xz \
-	&& curl -L -O http://sourceforge.mirrorservice.org/m/mi/mingw-w64/mingw-w64/mingw-w64-release/mingw-w64-v6.0.0.tar.bz2 \
-	&& tar Jxvf binutils-2.32.tar.xz \
-	&& tar Jxvf gcc-$GCC_VERSION.tar.xz \
-	&& tar jxvf mingw-w64-v6.0.0.tar.bz2 \
+	&& curl -L -O https://ftp.gnu.org/gnu/gcc/gcc-$GCC_VER/gcc-$GCC_VER.tar.xz \
+	&& curl -L -O https://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VER.tar.xz \
+	&& curl -L -O https://ftp.gnu.org/gnu/mpfr/mpfr-$MPFR_VER.tar.xz \
+	&& curl -L -O https://ftp.gnu.org/gnu/gmp/gmp-$GMP_VER.tar.xz \
+	&& curl -L -O https://ftp.gnu.org/gnu/mpc/mpc-$MPC_VER.tar.gz \
+	&& curl -L -O http://isl.gforge.inria.fr/isl-$ISL_VER.tar.xz \
+	&& curl -L -o mingw-w64-$MINGW_VER.tar.gz https://github.com/mirror/mingw-w64/archive/v$MINGW_VER.tar.gz \
+\
+	&& tar Jxvf gcc-$GCC_VER.tar.xz \
+	&& tar Jxvf binutils-$BINUTILS_VER.tar.xz \
+	&& tar Jxvf mpfr-$MPFR_VER.tar.xz \
+	&& tar Jxvf gmp-$GMP_VER.tar.xz \
+	&& tar zxvf mpc-$MPC_VER.tar.gz \
+	&& tar Jxvf isl-$ISL_VER.tar.xz \
+	&& tar zxvf mingw-w64-$MINGW_VER.tar.gz \
+\
+	&& mv mpfr-$MPFR_VER gcc-$GCC_VER/mpfr \
+	&& mv gmp-$GMP_VER gcc-$GCC_VER/gmp \
+	&& mv mpc-$MPC_VER gcc-$GCC_VER/mpc \
+	&& mv isl-$ISL_VER gcc-$GCC_VER/isl \
 \
 	&& mkdir -p $BUILDROOT/binutils \
 	&& cd $BUILDROOT/binutils \
-	&& $SRC/binutils-2.32/configure --prefix=$PREFIX --with-sysroot=$PREFIX \
-		--target=$TARGET --enable-targets=x86_64-w64-mingw32,i686-w64-mingw32 \
+	&& $SRC/binutils-$BINUTILS_VER/configure --prefix=$PREFIX --with-sysroot=$PREFIX \
+		--target=$TARGET --enable-targets=x86_64-w64-mingw32,i686-w64-mingw32 --build=$BUILD \
 	&& make -j `nproc` && make install \
 \
 	&& mkdir -p $BUILDROOT/headers \
 	&& cd $BUILDROOT/headers \
-	&& $SRC/mingw-w64-v6.0.0/mingw-w64-headers/configure --prefix=$PREFIX/$TARGET --host=$TARGET --build=$BUILD \
+	&& $SRC/mingw-w64-$MINGW_VER/mingw-w64-headers/configure --prefix=$PREFIX/$TARGET --host=$TARGET --build=$BUILD \
 	&& make install \
 \
 	&& ln -s $PREFIX/$TARGET $PREFIX/mingw \
@@ -52,36 +76,41 @@ RUN	yum install -y centos-release-scl epel-release && yum makecache \
 \
 	&& mkdir -p $BUILDROOT/gcc \
 	&& cd $BUILDROOT/gcc \
-	&& $SRC/gcc-$GCC_VERSION/configure --build=$BUILD --target=$TARGET \
+	&& $SRC/gcc-$GCC_VER/configure --build=$BUILD --target=$TARGET \
 		--enable-targets=x86_64-w64-mingw32,i686-w64-mingw32 --prefix=$PREFIX --with-sysroot=$PREFIX \
 		--enable-languages=c,c++ --enable-multiarch --enable-multilib --with-multilib-list=m32,m64 --enable-64bit \
+		--enable-threads=posix --enable-shared --enable-fully-dynamic-string \
+		--enable-libgomp --enable-lto --disable-libstdcxx-pch \
 	&& make all-gcc -j `nproc` && make install-gcc \
 \
 	&& mkdir -p $BUILDROOT/mingw \
 	&& cd $BUILDROOT/mingw \
-	&& $SRC/mingw-w64-v6.0.0/configure --prefix=$PREFIX/$TARGET --with-sysroot=$PREFIX --host=$TARGET  \
-		--enable-lib32 --enable-lib64 --enable-multilib \
+	&& $SRC/mingw-w64-$MINGW_VER/mingw-w64-crt/configure --prefix=$PREFIX/$TARGET --with-sysroot=$PREFIX --host=$TARGET \
+		--enable-lib32=yes --enable-lib64=yes \
+	&& make -j `nproc` && make install \
+\
+	&& mkdir -p $BUILDROOT/mingw-wpthreads \
+	&& cd $BUILDROOT/mingw-wpthreads \
+	&& $SRC/mingw-w64-$MINGW_VER/mingw-w64-libraries/winpthreads/configure --prefix=$PREFIX/$TARGET --host=$TARGET \
 	&& make -j `nproc` && make install \
 \
 	&& cd $BUILDROOT/gcc \
-	&& make -j `nproc` && make install \
+	&& make all-target-libgcc -j `nproc` && make install-target-libgcc \
 \
-	&& rm -rf $BUILDROOT/binutils $BUILDROOT/headers $BUILDROOT/gcc $BUILDROOT/mingw \
+    && cd $BUILDROOT/gcc \
+    && make -j `nproc` && make install \
+\
+	&& cd $BUILDROOT && rm -rf $BUILDROOT/binutils $BUILDROOT/headers $BUILDROOT/gcc $BUILDROOT/mingw $BUILDROOT/mingw-wpthreads \
 	&& rm -rf $SRC \
 	&& strip -s $MINGW/bin/$TARGET-* && strip -s $MINGW/$TARGET/lib/*.dll && strip -s $MINGW/$TARGET/lib32/*.dll \
-	&& cd $MINGW/libexec/gcc/$TARGET/$GCC_VERSION && strip -s cc1 cc1plus collect2 lto-wrapper lto1 \
+	&& cd $MINGW/libexec/gcc/$TARGET/$GCC_VER && strip -s cc1 cc1plus collect2 lto-wrapper lto1 \
 \
-	&& cd $MINGW/lib/gcc/$TARGET/$GCC_VERSION && $TARGET-gcc -dumpspecs > specs \
-	&& sed -i '/\*cpp:/!b; n; s%\(.*\)%\1 -I/opt/mingw32/x86_64-w64-mingw32/include -I/opt/mingw32/i686-w64-mingw32/include%' specs \
-	&& sed -i '/\*cc1plus:/!b; n; s%\(.*\)%\1 -I/opt/mingw32/x86_64-w64-mingw32/include -I/opt/mingw32/i686-w64-mingw32/include%' specs \
-	&& sed -i '/\*link_libgcc:/!b; n; s%\(.*\)%\1 -L/opt/mingw32/x86_64-w64-mingw32/lib -L/opt/mingw32/i686-w64-mingw32/lib%' specs \
+	&& cd $MINGW/lib/gcc/$TARGET/$GCC_VER && $TARGET-gcc -dumpspecs > specs \
+	&& sed -i '/\*cpp:/!b; n; s%\(.*\)%\1 -I/opt/mingw32/x86_64-w64-mingw32/include -I/opt/mingw32/i686-w64-mingw32/include -I/opt/mingw32/include%' specs \
+	&& sed -i '/\*cc1plus:/!b; n; s%\(.*\)%\1 -I/opt/mingw32/x86_64-w64-mingw32/include -I/opt/mingw32/i686-w64-mingw32/include -I/opt/mingw32/include%' specs \
+	&& sed -i '/\*link_libgcc:/!b; n; s%\(.*\)%\1 -L/opt/mingw32/x86_64-w64-mingw32/lib -L/opt/mingw32/i686-w64-mingw32/lib -L/opt/mingw32/lib%' specs \
 \
-	&& yum install -y --setopt=tsflags=nodocs llvm-toolset-7.0-cmake rh-ruby26 meson libstdc++.i686 \
-	&& yum clean all \
-\
-	&& source scl_source enable rh-ruby26 \
-	&& gem install rake && pip3 install --upgrade --no-cache-dir meson \
-	&& echo -e "source scl_source enable llvm-toolset-7.0\nsource scl_source enable rh-ruby26\nunset BASH_ENV PROMPT_COMMAND ENV" > /usr/bin/scl_enable_centos7 \
+	&& echo -e "source scl_source enable devtoolset-9\nsource scl_source enable llvm-toolset-7.0\nsource scl_source enable rh-ruby26\nunset BASH_ENV PROMPT_COMMAND ENV" > /usr/bin/scl_enable_centos7 \
 	&& chmod +x /usr/bin/scl_enable_centos7
 
 ENV BASH_ENV="/usr/bin/scl_enable_centos7" ENV="/usr/bin/scl_enable_centos7" PROMPT_COMMAND=". /usr/bin/scl_enable_centos7"
