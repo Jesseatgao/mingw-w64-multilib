@@ -6,6 +6,7 @@ SHELL ["/bin/bash", "-c"]
 
 ARG BUILD=x86_64-unknown-linux-gnu
 ARG TARGET=x86_64-w64-mingw32
+ARG TARGET_X86=i686-w64-mingw32
 ARG BUILDROOT=/usr/local
 ARG SRC=$BUILDROOT/_src
 ARG MINGW=$BUILDROOT/mingw32
@@ -92,6 +93,11 @@ RUN	yum install -y centos-release-scl epel-release && yum makecache \
 	&& mkdir -p $BUILDROOT/mingw-wpthreads \
 	&& cd $BUILDROOT/mingw-wpthreads \
 	&& $SRC/mingw-w64-$MINGW_VER/mingw-w64-libraries/winpthreads/configure --prefix=$PREFIX/$TARGET --host=$TARGET \
+	&& make -j `nproc` && make install \
+	&& rm -rf * \
+	&& CC="$TARGET-gcc -m32" CCAS="$TARGET-gcc -m32" DLLTOOL="$TARGET-dlltool -m i386" \
+	    RC="$TARGET-windres -F pe-i386" $SRC/mingw-w64-$MINGW_VER/mingw-w64-libraries/winpthreads/configure \
+	    --prefix=$PREFIX/$TARGET --host=$TARGET_X86 --libdir=$PREFIX/$TARGET/lib32 \
 	&& make -j `nproc` && make install \
 \
 	&& cd $BUILDROOT/gcc \
