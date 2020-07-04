@@ -1,8 +1,10 @@
 # mingw-w64-multilib
 MinGW-w64: cross compile multilib toolchain docker image based on centos7 targetting win64 and win32
 
-## Tags
-* posix-v1.0
+## Docker Images with Tags
+* `cgdoc/mingw-w64-multilib:posix-v1.0`
+    * Source
+        * [Dockerfile](https://raw.githubusercontent.com/Jesseatgao/mingw-w64-multilib/mingw7-gcc10-posix-wpthreads/Dockerfile.multi.mingw)
 	* Base Image
 		* Centos 7
 	* Cross Compilation Toolchain
@@ -18,6 +20,30 @@ MinGW-w64: cross compile multilib toolchain docker image based on centos7 target
 		* `make`: GNU Make 4.2.1
 		* `cmake`: 3.6.2
 		* `meson`: 0.54.3
+		* `rake`: Ruby Make 13.0.1 (Ruby 2.6)
+	* Repos
+		* CentOS 7 Base
+		* CentOS 7 SCL
+		* EPEL 7
+
+* `cgdoc/mingw-w64-multilib:latest`
+    * Source
+        * [Dockerfile](https://raw.githubusercontent.com/Jesseatgao/mingw-w64-multilib/master/Dockerfile.multi.mingw)
+	* Base Image
+		* Centos 7
+	* Cross Compilation Toolchain
+		* `MinGW-w64`: 6.0.0
+		* `GCC`: 8.2.0
+		* `Binutils`: 2.32
+		* Thread model: Win32
+	* Native Compilation Toolchain
+		* `GCC`: 4.8.5
+		* `Binutils`: 2.27
+		* Thread model: posix
+	* Build System
+		* `make`: GNU Make 3.82
+		* `cmake`: 3.6.2
+		* `meson`: 0.54.2
 		* `rake`: Ruby Make 13.0.1 (Ruby 2.6)
 	* Repos
 		* CentOS 7 Base
