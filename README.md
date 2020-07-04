@@ -28,6 +28,8 @@ MinGW-w64: cross compile multilib toolchain docker image based on centos7 target
 * For cross-compiling win32 target: see for example
 	* [Cross compile Aria2 i686 on CentOS 7](https://github.com/Jesseatgao/aria2-patched-static-build/blob/master/Dockerfile.i686.mingw)
 	* [Cross compile common devel packages(header files and libs)](https://github.com/Jesseatgao/mingw-w64-libs)
+	* [Cross compile MKVToolNix (mkvmerge)](https://github.com/Jesseatgao/MKVToolNix-static-builds)
 * cross-compiling win64 target: see for example
 	* [Cross compile Aria2 x86_64 on CentOS 7](https://github.com/Jesseatgao/aria2-patched-static-build/blob/master/Dockerfile.x86_64.mingw)
 	* [Cross compile common devel packages(header files and libs)](https://github.com/Jesseatgao/mingw-w64-libs)
+	* [Cross compile MKVToolNix (mkvmerge)](https://github.com/Jesseatgao/MKVToolNix-static-builds)
