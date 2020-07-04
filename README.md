@@ -32,18 +32,18 @@ MinGW-w64: cross compile multilib toolchain docker image based on centos7 target
 	* Base Image
 		* Centos 7
 	* Cross Compilation Toolchain
-		* `MinGW-w64`: 6.0.0
-		* `GCC`: 8.2.0
-		* `Binutils`: 2.32
+		* `MinGW-w64`: 7.0.0
+		* `GCC`: 10.1.0
+		* `Binutils`: 2.34
 		* Thread model: Win32
 	* Native Compilation Toolchain
-		* `GCC`: 4.8.5
-		* `Binutils`: 2.27
+		* `GCC`: 9.1.1
+		* `Binutils`: 2.32
 		* Thread model: posix
 	* Build System
-		* `make`: GNU Make 3.82
+		* `make`: GNU Make 4.2.1
 		* `cmake`: 3.6.2
-		* `meson`: 0.54.2
+		* `meson`: 0.54.3
 		* `rake`: Ruby Make 13.0.1 (Ruby 2.6)
 	* Repos
 		* CentOS 7 Base
