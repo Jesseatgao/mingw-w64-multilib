@@ -80,7 +80,7 @@ RUN	yum install -y centos-release-scl epel-release && yum makecache \
 		--enable-targets=x86_64-w64-mingw32,i686-w64-mingw32 --prefix=$PREFIX --with-sysroot=$PREFIX \
 		--enable-languages=c,c++ --enable-multiarch --enable-multilib --with-multilib-list=m32,m64 --enable-64bit \
 		--enable-threads=win32 --enable-shared --enable-fully-dynamic-string \
-		--enable-libgomp --enable-lto --disable-libstdcxx-pch \
+		--enable-lto --disable-libstdcxx-pch \
 	&& make all-gcc -j `nproc` && make install-gcc \
 \
 	&& mkdir -p $BUILDROOT/mingw \
