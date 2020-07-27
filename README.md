@@ -4,7 +4,7 @@ MinGW-w64: cross compile multilib toolchain docker image based on centos7 target
 ## Docker Images with Tags
 * `cgdoc/mingw-w64-multilib:posix-v1.0`
     * Source
-        * [Dockerfile](https://raw.githubusercontent.com/Jesseatgao/mingw-w64-multilib/mingw7-gcc10-posix-wpthreads/Dockerfile.multi.mingw)
+        * [Dockerfile](https://github.com/Jesseatgao/mingw-w64-multilib/releases/tag/posix-v1.0)
 	* Base Image
 		* Centos 7
 	* Cross Compilation Toolchain

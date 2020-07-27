@@ -31,6 +31,7 @@ ARG MINGW_VER=7.0.0
 RUN	yum install -y centos-release-scl epel-release && yum makecache \
 	&& yum install -y --setopt=tsflags=nodocs devtoolset-9-gcc-c++ devtoolset-9-make bison flex gperf patch autoconf automake \
 		libtool gettext-devel bzip2 unzip file texinfo glibc-devel glibc-devel.i686 llvm-toolset-7.0-cmake rh-ruby26 meson \
+		libstdc++-static.i686 libstdc++-static.x86_64 glibc-static.i686 glibc-static.x86_64 \
 	&& yum localinstall -y https://yum.oracle.com/repo/OracleLinux/OL7/SoftwareCollections/x86_64/getPackage/devtoolset-9-libstdc++-devel-9.1.1-2.6.el7.i686.rpm \
 	&& yum clean all \
 \
