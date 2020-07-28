@@ -12,6 +12,7 @@ MinGW-w64: cross compile multilib toolchain docker image based on centos7 target
 		* `GCC`: 10.1.0
 		* `Binutils`: 2.34
 		* Thread model: posix
+		* Languages: C, C++
 	* Native Compilation Toolchain
 		* `GCC`: 9.1.1
 		* `Binutils`: 2.32
