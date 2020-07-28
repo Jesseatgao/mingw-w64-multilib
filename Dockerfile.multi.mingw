@@ -25,11 +25,13 @@ ARG MPC_VER=1.1.0
 ARG ISL_VER=0.21
 
 ARG MINGW_VER=7.0.0
+ARG PTHREADS4W_VER=3.0.0
 
 
 RUN	yum install -y centos-release-scl epel-release && yum makecache \
 	&& yum install -y --setopt=tsflags=nodocs devtoolset-9-gcc-c++ devtoolset-9-make bison flex gperf patch autoconf automake \
 		libtool gettext-devel bzip2 unzip file texinfo glibc-devel glibc-devel.i686 llvm-toolset-7.0-cmake rh-ruby26 meson \
+		libstdc++-static.i686 libstdc++-static.x86_64 glibc-static.i686 glibc-static.x86_64 \
 	&& yum localinstall -y https://yum.oracle.com/repo/OracleLinux/OL7/SoftwareCollections/x86_64/getPackage/devtoolset-9-libstdc++-devel-9.1.1-2.6.el7.i686.rpm \
 	&& yum clean all \
 \
@@ -45,6 +47,7 @@ RUN	yum install -y centos-release-scl epel-release && yum makecache \
 	&& curl -L -O https://ftp.gnu.org/gnu/mpc/mpc-$MPC_VER.tar.gz \
 	&& curl -L -O http://isl.gforge.inria.fr/isl-$ISL_VER.tar.xz \
 	&& curl -L -o mingw-w64-$MINGW_VER.tar.gz https://github.com/mirror/mingw-w64/archive/v$MINGW_VER.tar.gz \
+	&& curl -L -O https://sourceforge.net/projects/pthreads4w/files/pthreads4w-code-v$PTHREADS4W_VER.zip \
 \
 	&& tar Jxvf gcc-$GCC_VER.tar.xz \
 	&& tar Jxvf binutils-$BINUTILS_VER.tar.xz \
@@ -53,6 +56,7 @@ RUN	yum install -y centos-release-scl epel-release && yum makecache \
 	&& tar zxvf mpc-$MPC_VER.tar.gz \
 	&& tar Jxvf isl-$ISL_VER.tar.xz \
 	&& tar zxvf mingw-w64-$MINGW_VER.tar.gz \
+	&& mkdir pthreads4w && unzip -d pthreads4w pthreads4w-code-v$PTHREADS4W_VER.zip && mv pthreads4w/pthreads4w-code*/* pthreads4w/ \
 \
 	&& mv mpfr-$MPFR_VER gcc-$GCC_VER/mpfr \
 	&& mv gmp-$GMP_VER gcc-$GCC_VER/gmp \
@@ -63,7 +67,7 @@ RUN	yum install -y centos-release-scl epel-release && yum makecache \
 	&& cd $BUILDROOT/binutils \
 	&& $SRC/binutils-$BINUTILS_VER/configure --prefix=$PREFIX --with-sysroot=$PREFIX \
 		--target=$TARGET --enable-targets=x86_64-w64-mingw32,i686-w64-mingw32 --build=$BUILD \
-	&& make -j `nproc` && make install \
+	&& make -j $(( $(nproc) + 3 )) && make install \
 \
 	&& mkdir -p $BUILDROOT/headers \
 	&& cd $BUILDROOT/headers \
@@ -80,22 +84,47 @@ RUN	yum install -y centos-release-scl epel-release && yum makecache \
 		--enable-targets=x86_64-w64-mingw32,i686-w64-mingw32 --prefix=$PREFIX --with-sysroot=$PREFIX \
 		--enable-languages=c,c++ --enable-multiarch --enable-multilib --with-multilib-list=m32,m64 --enable-64bit \
 		--enable-threads=win32 --enable-shared --enable-fully-dynamic-string \
-		--enable-lto --disable-libstdcxx-pch \
-	&& make all-gcc -j `nproc` && make install-gcc \
+		--enable-lto --disable-libstdcxx-pch --enable-libgomp \
+	&& make all-gcc -j $(( $(nproc) + 3 )) && make install-gcc \
 \
 	&& mkdir -p $BUILDROOT/mingw \
 	&& cd $BUILDROOT/mingw \
 	&& $SRC/mingw-w64-$MINGW_VER/mingw-w64-crt/configure --prefix=$PREFIX/$TARGET --with-sysroot=$PREFIX --host=$TARGET \
 		--enable-lib32=yes --enable-lib64=yes \
-	&& make -j `nproc` && make install \
+	&& make -j $(( $(nproc) + 3 )) && make install \
 \
 	&& cd $BUILDROOT/gcc \
-	&& make all-target-libgcc -j `nproc` && make install-target-libgcc \
+	&& make all-target-libgcc -j $(( $(nproc) + 3 )) && make install-target-libgcc \
+\
+	&& cd $SRC/pthreads4w && autoheader && autoconf \
+	&& mkdir -p $BUILDROOT/pthreads4w \
+	&& cd $BUILDROOT/pthreads4w \
+	&& CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ AR=x86_64-w64-mingw32-ar OBJDUMP=x86_64-w64-mingw32-objdump \
+	    RANLIB=x86_64-w64-mingw32-ranlib RC="x86_64-w64-mingw32-windres -F pe-i386" DLLTOOL="x86_64-w64-mingw32-dlltool -m i386" \
+	    $SRC/pthreads4w/configure --host=i686-w64-mingw32 \
+	&& make realclean GC ARCH="-m32" \
+	&& cp -f libpthreadGC3.dll.a pthreadGC3.dll $PREFIX/$TARGET/lib32 \
+	&& mv $PREFIX/$TARGET/lib32/libpthreadGC3.dll.a $PREFIX/$TARGET/lib32/libpthread.dll.a \
+	&& mv $PREFIX/$TARGET/lib32/pthreadGC3.dll $PREFIX/$TARGET/lib32/pthread.dll \
+	&& make realclean GC-static ARCH="-m32" \
+	&& cp -f libpthreadGC3.a $PREFIX/$TARGET/lib32 \
+	&& mv $PREFIX/$TARGET/lib32/libpthreadGC3.a $PREFIX/$TARGET/lib32/libpthread.a \
+	&& CC=x86_64-w64-mingw32-gcc CXX=x86_64-w64-mingw32-g++ AR=x86_64-w64-mingw32-ar OBJDUMP=x86_64-w64-mingw32-objdump \
+	    RANLIB=x86_64-w64-mingw32-ranlib RC="x86_64-w64-mingw32-windres -F pe-x86-64" DLLTOOL="x86_64-w64-mingw32-dlltool -m i386:x86-64" \
+	    $SRC/pthreads4w/configure --host=x86_64-w64-mingw32 \
+	&& make realclean GC ARCH="-m64" \
+	&& cp -f libpthreadGC3.dll.a pthreadGC3.dll $PREFIX/$TARGET/lib \
+	&& mv $PREFIX/$TARGET/lib/libpthreadGC3.dll.a $PREFIX/$TARGET/lib/libpthread.dll.a \
+	&& mv $PREFIX/$TARGET/lib/pthreadGC3.dll $PREFIX/$TARGET/lib/pthread.dll \
+	&& make realclean GC-static ARCH="-m64" \
+	&& cp -f libpthreadGC3.a $PREFIX/$TARGET/lib \
+	&& mv $PREFIX/$TARGET/lib/libpthreadGC3.a $PREFIX/$TARGET/lib/libpthread.a \
+	&& cp -f $SRC/pthreads4w/pthread.h $SRC/pthreads4w/sched.h $SRC/pthreads4w/semaphore.h $SRC/pthreads4w/_ptw32.h $PREFIX/$TARGET/include \
 \
     && cd $BUILDROOT/gcc \
-    && make -j `nproc` && make install \
+    && make -j $(( $(nproc) + 3 )) && make install \
 \
-	&& cd $BUILDROOT && rm -rf $BUILDROOT/binutils $BUILDROOT/headers $BUILDROOT/gcc $BUILDROOT/mingw \
+	&& cd $BUILDROOT && rm -rf $BUILDROOT/binutils $BUILDROOT/headers $BUILDROOT/gcc $BUILDROOT/mingw $BUILDROOT/pthreads4w \
 	&& rm -rf $SRC \
 	&& strip -s $MINGW/bin/$TARGET-* && strip -s $MINGW/$TARGET/lib/*.dll && strip -s $MINGW/$TARGET/lib32/*.dll \
 	&& cd $MINGW/libexec/gcc/$TARGET/$GCC_VER && strip -s cc1 cc1plus collect2 lto-wrapper lto1 \
