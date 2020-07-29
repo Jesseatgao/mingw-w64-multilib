@@ -48,6 +48,7 @@ RUN	yum install -y centos-release-scl epel-release && yum makecache \
 	&& curl -L -O http://isl.gforge.inria.fr/isl-$ISL_VER.tar.xz \
 	&& curl -L -o mingw-w64-$MINGW_VER.tar.gz https://github.com/mirror/mingw-w64/archive/v$MINGW_VER.tar.gz \
 	&& curl -L -O https://sourceforge.net/projects/pthreads4w/files/pthreads4w-code-v$PTHREADS4W_VER.zip \
+	&& curl -L -o mingw-std-threads-master.zip https://github.com/meganz/mingw-std-threads/archive/master.zip \
 \
 	&& tar Jxvf gcc-$GCC_VER.tar.xz \
 	&& tar Jxvf binutils-$BINUTILS_VER.tar.xz \
@@ -57,6 +58,7 @@ RUN	yum install -y centos-release-scl epel-release && yum makecache \
 	&& tar Jxvf isl-$ISL_VER.tar.xz \
 	&& tar zxvf mingw-w64-$MINGW_VER.tar.gz \
 	&& mkdir pthreads4w && unzip -d pthreads4w pthreads4w-code-v$PTHREADS4W_VER.zip && mv pthreads4w/pthreads4w-code*/* pthreads4w/ \
+	&& unzip mingw-std-threads-master.zip \
 \
 	&& mv mpfr-$MPFR_VER gcc-$GCC_VER/mpfr \
 	&& mv gmp-$GMP_VER gcc-$GCC_VER/gmp \
@@ -124,10 +126,12 @@ RUN	yum install -y centos-release-scl epel-release && yum makecache \
     && cd $BUILDROOT/gcc \
     && make -j $(( $(nproc) + 3 )) && make install \
 \
-	&& cd $BUILDROOT && rm -rf $BUILDROOT/binutils $BUILDROOT/headers $BUILDROOT/gcc $BUILDROOT/mingw $BUILDROOT/pthreads4w \
-	&& rm -rf $SRC \
-	&& strip -s $MINGW/bin/$TARGET-* && strip -s $MINGW/$TARGET/lib/*.dll && strip -s $MINGW/$TARGET/lib32/*.dll \
-	&& cd $MINGW/libexec/gcc/$TARGET/$GCC_VER && strip -s cc1 cc1plus collect2 lto-wrapper lto1 \
+    && cp -f $SRC/mingw-std-threads-master/*.h $MINGW/$TARGET/include/c++/$GCC_VER/ \
+    && echo '#include "mingw.condition_variable.h"' >> $MINGW/$TARGET/include/c++/$GCC_VER/condition_variable \
+    && echo '#include "mingw.future.h"' >> $MINGW/$TARGET/include/c++/$GCC_VER/future \
+    && echo '#include "mingw.mutex.h"' >> $MINGW/$TARGET/include/c++/$GCC_VER/mutex \
+    && echo '#include "mingw.shared_mutex.h"' >> $MINGW/$TARGET/include/c++/$GCC_VER/shared_mutex \
+    && echo '#include "mingw.thread.h"' >> $MINGW/$TARGET/include/c++/$GCC_VER/thread \
 \
 	&& cd $MINGW/lib/gcc/$TARGET/$GCC_VER && $TARGET-gcc -dumpspecs > specs \
 	&& sed -i '/\*cpp:/!b; n; s%\(.*\)%\1 -I/opt/mingw32/x86_64-w64-mingw32/include -I/opt/mingw32/i686-w64-mingw32/include -I/opt/mingw32/include%' specs \
@@ -135,6 +139,11 @@ RUN	yum install -y centos-release-scl epel-release && yum makecache \
 	&& sed -i '/\*link_libgcc:/!b; n; s%\(.*\)%\1 -L/opt/mingw32/x86_64-w64-mingw32/lib -L/opt/mingw32/i686-w64-mingw32/lib -L/opt/mingw32/lib%' specs \
 \
 	&& echo -e "source scl_source enable devtoolset-9\nsource scl_source enable llvm-toolset-7.0\nsource scl_source enable rh-ruby26\nunset BASH_ENV PROMPT_COMMAND ENV" > /usr/bin/scl_enable_centos7 \
-	&& chmod +x /usr/bin/scl_enable_centos7
+	&& chmod +x /usr/bin/scl_enable_centos7 \
+\
+	&& cd $BUILDROOT && rm -rf $BUILDROOT/binutils $BUILDROOT/headers $BUILDROOT/gcc $BUILDROOT/mingw $BUILDROOT/pthreads4w \
+	&& rm -rf $SRC \
+	&& strip -s $MINGW/bin/$TARGET-* && strip -s $MINGW/$TARGET/lib/*.dll && strip -s $MINGW/$TARGET/lib32/*.dll \
+	&& cd $MINGW/libexec/gcc/$TARGET/$GCC_VER && strip -s cc1 cc1plus collect2 lto-wrapper lto1
 
 ENV BASH_ENV="/usr/bin/scl_enable_centos7" ENV="/usr/bin/scl_enable_centos7" PROMPT_COMMAND=". /usr/bin/scl_enable_centos7"
