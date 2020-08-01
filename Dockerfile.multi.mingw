@@ -29,6 +29,8 @@ ARG PTHREADS4W_VER=3.0.0
 
 ARG RH_DTS_GCC_VER=9.3.1-2
 
+COPY mingw-std-threads/* $SRC/mingw-std-threads/
+
 RUN	yum install -y centos-release-scl epel-release && yum makecache \
 	&& yum install -y --setopt=tsflags=nodocs devtoolset-9-gcc-c++-${RH_DTS_GCC_VER}.el7 devtoolset-9-make bison flex gperf patch autoconf automake \
 		libtool gettext-devel bzip2 unzip file texinfo glibc-devel glibc-devel.i686 llvm-toolset-7.0-cmake rh-ruby26 meson \
@@ -49,7 +51,6 @@ RUN	yum install -y centos-release-scl epel-release && yum makecache \
 	&& curl -L -O http://isl.gforge.inria.fr/isl-$ISL_VER.tar.xz \
 	&& curl -L -o mingw-w64-$MINGW_VER.tar.gz https://github.com/mirror/mingw-w64/archive/v$MINGW_VER.tar.gz \
 	&& curl -L -O https://sourceforge.net/projects/pthreads4w/files/pthreads4w-code-v$PTHREADS4W_VER.zip \
-	&& curl -L -o mingw-std-threads-master.zip https://github.com/meganz/mingw-std-threads/archive/master.zip \
 \
 	&& tar Jxvf gcc-$GCC_VER.tar.xz \
 	&& tar Jxvf binutils-$BINUTILS_VER.tar.xz \
@@ -59,7 +60,6 @@ RUN	yum install -y centos-release-scl epel-release && yum makecache \
 	&& tar Jxvf isl-$ISL_VER.tar.xz \
 	&& tar zxvf mingw-w64-$MINGW_VER.tar.gz \
 	&& mkdir pthreads4w && unzip -d pthreads4w pthreads4w-code-v$PTHREADS4W_VER.zip && mv pthreads4w/pthreads4w-code*/* pthreads4w/ \
-	&& unzip mingw-std-threads-master.zip \
 \
 	&& mv mpfr-$MPFR_VER gcc-$GCC_VER/mpfr \
 	&& mv gmp-$GMP_VER gcc-$GCC_VER/gmp \
@@ -127,12 +127,12 @@ RUN	yum install -y centos-release-scl epel-release && yum makecache \
     && cd $BUILDROOT/gcc \
     && make -j $(( $(nproc) + 3 )) && make install \
 \
-    && cp -f $SRC/mingw-std-threads-master/*.h $MINGW/$TARGET/include/c++/$GCC_VER/ \
-    && echo '#include "mingw.condition_variable.h"' >> $MINGW/$TARGET/include/c++/$GCC_VER/condition_variable \
-    && echo '#include "mingw.future.h"' >> $MINGW/$TARGET/include/c++/$GCC_VER/future \
-    && echo '#include "mingw.mutex.h"' >> $MINGW/$TARGET/include/c++/$GCC_VER/mutex \
-    && echo '#include "mingw.shared_mutex.h"' >> $MINGW/$TARGET/include/c++/$GCC_VER/shared_mutex \
-    && echo '#include "mingw.thread.h"' >> $MINGW/$TARGET/include/c++/$GCC_VER/thread \
+    && mv $MINGW/$TARGET/include/c++/$GCC_VER/condition_variable $MINGW/$TARGET/include/c++/$GCC_VER/condition_variable.h \
+    && mv $MINGW/$TARGET/include/c++/$GCC_VER/future $MINGW/$TARGET/include/c++/$GCC_VER/future.h \
+    && mv $MINGW/$TARGET/include/c++/$GCC_VER/mutex $MINGW/$TARGET/include/c++/$GCC_VER/mutex.h \
+    && mv $MINGW/$TARGET/include/c++/$GCC_VER/shared_mutex $MINGW/$TARGET/include/c++/$GCC_VER/shared_mutex.h \
+    && mv $MINGW/$TARGET/include/c++/$GCC_VER/thread $MINGW/$TARGET/include/c++/$GCC_VER/thread.h \
+    && cp -f $SRC/mingw-std-threads/* $MINGW/$TARGET/include/c++/$GCC_VER/ \
 \
 	&& cd $MINGW/lib/gcc/$TARGET/$GCC_VER && $TARGET-gcc -dumpspecs > specs \
 	&& sed -i '/\*cpp:/!b; n; s%\(.*\)%\1 -I/opt/mingw32/x86_64-w64-mingw32/include -I/opt/mingw32/i686-w64-mingw32/include -I/opt/mingw32/include%' specs \
