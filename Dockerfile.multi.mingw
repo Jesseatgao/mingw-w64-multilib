@@ -128,10 +128,20 @@ RUN	yum install -y centos-release-scl epel-release && yum makecache \
     && make -j $(( $(nproc) + 3 )) && make install \
 \
     && mv $MINGW/$TARGET/include/c++/$GCC_VER/condition_variable $MINGW/$TARGET/include/c++/$GCC_VER/condition_variable.h \
+    && sed -i 's/include  *<\(condition_variable\|future\|mutex\|shared_mutex\|thread\)>/include <\1.h>/g' \
+        $MINGW/$TARGET/include/c++/$GCC_VER/condition_variable.h \
     && mv $MINGW/$TARGET/include/c++/$GCC_VER/future $MINGW/$TARGET/include/c++/$GCC_VER/future.h \
+    && sed -i 's/include  *<\(condition_variable\|future\|mutex\|shared_mutex\|thread\)>/include <\1.h>/g' \
+        $MINGW/$TARGET/include/c++/$GCC_VER/future.h \
     && mv $MINGW/$TARGET/include/c++/$GCC_VER/mutex $MINGW/$TARGET/include/c++/$GCC_VER/mutex.h \
+    && sed -i 's/include  *<\(condition_variable\|future\|mutex\|shared_mutex\|thread\)>/include <\1.h>/g' \
+        $MINGW/$TARGET/include/c++/$GCC_VER/mutex.h \
     && mv $MINGW/$TARGET/include/c++/$GCC_VER/shared_mutex $MINGW/$TARGET/include/c++/$GCC_VER/shared_mutex.h \
+    && sed -i 's/include  *<\(condition_variable\|future\|mutex\|shared_mutex\|thread\)>/include <\1.h>/g' \
+        $MINGW/$TARGET/include/c++/$GCC_VER/shared_mutex.h \
     && mv $MINGW/$TARGET/include/c++/$GCC_VER/thread $MINGW/$TARGET/include/c++/$GCC_VER/thread.h \
+    && sed -i 's/include  *<\(condition_variable\|future\|mutex\|shared_mutex\|thread\)>/include <\1.h>/g' \
+        $MINGW/$TARGET/include/c++/$GCC_VER/thread.h \
     && cp -f $SRC/mingw-std-threads/* $MINGW/$TARGET/include/c++/$GCC_VER/ \
 \
 	&& cd $MINGW/lib/gcc/$TARGET/$GCC_VER && $TARGET-gcc -dumpspecs > specs \
