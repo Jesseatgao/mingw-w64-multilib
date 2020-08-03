@@ -4,7 +4,7 @@ MinGW-w64: cross compile multilib toolchain docker image based on centos7 target
 ## Docker Images with Tags
 * `cgdoc/mingw-w64-multilib:posix-v1.0`
     * Source
-        * [Dockerfile](https://raw.githubusercontent.com/Jesseatgao/mingw-w64-multilib/mingw7-gcc10-posix-wpthreads/Dockerfile.multi.mingw)
+        * [Dockerfile](https://github.com/Jesseatgao/mingw-w64-multilib/releases/tag/posix-v1.0)
 	* Base Image
 		* Centos 7
 	* Cross Compilation Toolchain
@@ -12,10 +12,13 @@ MinGW-w64: cross compile multilib toolchain docker image based on centos7 target
 		* `GCC`: 10.1.0
 		* `Binutils`: 2.34
 		* Thread model: posix
+		* Languages: C, C++
+		* Thread support: C++ 11 Thread, POSIX Threads
 	* Native Compilation Toolchain
 		* `GCC`: 9.1.1
 		* `Binutils`: 2.32
 		* Thread model: posix
+		* Languages: C,C++,FORTRAN
 	* Build System
 		* `make`: GNU Make 4.2.1
 		* `cmake`: 3.6.2
@@ -26,9 +29,9 @@ MinGW-w64: cross compile multilib toolchain docker image based on centos7 target
 		* CentOS 7 SCL
 		* EPEL 7
 
-* `cgdoc/mingw-w64-multilib:latest`
+* `cgdoc/mingw-w64-multilib:win32-v1.0`
     * Source
-        * [Dockerfile](https://raw.githubusercontent.com/Jesseatgao/mingw-w64-multilib/master/Dockerfile.multi.mingw)
+        * [Dockerfile](https://github.com/Jesseatgao/mingw-w64-multilib/releases/tag/win32-v1.0)
 	* Base Image
 		* Centos 7
 	* Cross Compilation Toolchain
@@ -36,14 +39,17 @@ MinGW-w64: cross compile multilib toolchain docker image based on centos7 target
 		* `GCC`: 10.1.0
 		* `Binutils`: 2.34
 		* Thread model: Win32
+		* Languages: C, C++
+		* Thread support: C++ 11 Thread ([mingw-std-threads](https://github.com/meganz/mingw-std-threads)), POSIX Threads ([pthreads4w](https://sourceforge.net/projects/pthreads4w), i.e. [pthreads-w32](https://www.sourceware.org/pthreads-win32))
 	* Native Compilation Toolchain
-		* `GCC`: 9.1.1
+		* `GCC`: 9.3.1
 		* `Binutils`: 2.32
 		* Thread model: posix
+		* Languages: C,C++,FORTRAN
 	* Build System
 		* `make`: GNU Make 4.2.1
 		* `cmake`: 3.6.2
-		* `meson`: 0.54.3
+		* `meson`: 0.55.0
 		* `rake`: Ruby Make 13.0.1 (Ruby 2.6)
 	* Repos
 		* CentOS 7 Base
