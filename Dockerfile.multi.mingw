@@ -153,6 +153,8 @@ RUN	yum install -y centos-release-scl epel-release && yum makecache \
 	&& cd $BUILDROOT && rm -rf $BUILDROOT/binutils $BUILDROOT/headers $BUILDROOT/gcc $BUILDROOT/mingw $BUILDROOT/pthreads4w \
 	&& rm -rf $SRC \
 	&& strip -s $MINGW/bin/$TARGET-* && strip -s $MINGW/$TARGET/lib/*.dll && strip -s $MINGW/$TARGET/lib32/*.dll \
-	&& cd $MINGW/libexec/gcc/$TARGET/$GCC_VER && strip -s cc1 cc1plus collect2 lto-wrapper lto1
+	&& cd $MINGW/libexec/gcc/$TARGET/$GCC_VER && strip -s cc1 cc1plus collect2 lto-wrapper lto1 \
+	&& echo -e "export PATH=\${PATH}" >> ~/.bashrc \
+	&& echo -e "source /usr/bin/scl_enable_centos7" >> ~/.bashrc
 
 ENV BASH_ENV="/usr/bin/scl_enable_centos7" ENV="/usr/bin/scl_enable_centos7" PROMPT_COMMAND=". /usr/bin/scl_enable_centos7"
