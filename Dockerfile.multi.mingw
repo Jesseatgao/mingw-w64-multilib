@@ -47,7 +47,7 @@ RUN	yum install -y centos-release-scl epel-release && yum makecache \
 	&& curl -L -O https://ftp.gnu.org/gnu/mpfr/mpfr-$MPFR_VER.tar.xz \
 	&& curl -L -O https://ftp.gnu.org/gnu/gmp/gmp-$GMP_VER.tar.xz \
 	&& curl -L -O https://ftp.gnu.org/gnu/mpc/mpc-$MPC_VER.tar.gz \
-	&& curl -L -O http://isl.gforge.inria.fr/isl-$ISL_VER.tar.xz \
+	&& curl -L -O https://distfiles.macports.org/isl/isl-$ISL_VER.tar.bz2 \
 	&& curl -L -o mingw-w64-$MINGW_VER.tar.gz https://github.com/mirror/mingw-w64/archive/v$MINGW_VER.tar.gz \
 	&& curl -L -O https://sourceforge.net/projects/pthreads4w/files/pthreads4w-code-v$PTHREADS4W_VER.zip \
 	&& curl -L -o mingw-std-threads-master.zip https://github.com/meganz/mingw-std-threads/archive/master.zip \
@@ -57,7 +57,7 @@ RUN	yum install -y centos-release-scl epel-release && yum makecache \
 	&& tar Jxvf mpfr-$MPFR_VER.tar.xz \
 	&& tar Jxvf gmp-$GMP_VER.tar.xz \
 	&& tar zxvf mpc-$MPC_VER.tar.gz \
-	&& tar Jxvf isl-$ISL_VER.tar.xz \
+	&& tar jxvf isl-$ISL_VER.tar.bz2 \
 	&& tar zxvf mingw-w64-$MINGW_VER.tar.gz \
 	&& mkdir pthreads4w && unzip -d pthreads4w pthreads4w-code-v$PTHREADS4W_VER.zip && mv pthreads4w/pthreads4w-code*/* pthreads4w/ \
 	&& unzip mingw-std-threads-master.zip \
