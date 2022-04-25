@@ -46,7 +46,7 @@ RUN	yum install -y centos-release-scl epel-release && yum makecache \
 	&& curl -L -O https://ftp.gnu.org/gnu/mpfr/mpfr-$MPFR_VER.tar.xz \
 	&& curl -L -O https://ftp.gnu.org/gnu/gmp/gmp-$GMP_VER.tar.xz \
 	&& curl -L -O https://ftp.gnu.org/gnu/mpc/mpc-$MPC_VER.tar.gz \
-	&& curl -L -O http://isl.gforge.inria.fr/isl-$ISL_VER.tar.xz \
+	&& curl -L -O https://distfiles.macports.org/isl/isl-$ISL_VER.tar.bz2 \
 	&& curl -L -o mingw-w64-$MINGW_VER.tar.gz https://github.com/mirror/mingw-w64/archive/v$MINGW_VER.tar.gz \
 \
 	&& tar Jxvf gcc-$GCC_VER.tar.xz \
@@ -54,7 +54,7 @@ RUN	yum install -y centos-release-scl epel-release && yum makecache \
 	&& tar Jxvf mpfr-$MPFR_VER.tar.xz \
 	&& tar Jxvf gmp-$GMP_VER.tar.xz \
 	&& tar zxvf mpc-$MPC_VER.tar.gz \
-	&& tar Jxvf isl-$ISL_VER.tar.xz \
+	&& tar jxvf isl-$ISL_VER.tar.bz2 \
 	&& tar zxvf mingw-w64-$MINGW_VER.tar.gz \
 \
 	&& mv mpfr-$MPFR_VER gcc-$GCC_VER/mpfr \
@@ -119,6 +119,8 @@ RUN	yum install -y centos-release-scl epel-release && yum makecache \
 	&& sed -i '/\*link_libgcc:/!b; n; s%\(.*\)%\1 -L/opt/mingw32/x86_64-w64-mingw32/lib -L/opt/mingw32/i686-w64-mingw32/lib -L/opt/mingw32/lib%' specs \
 \
 	&& echo -e "source scl_source enable devtoolset-9\nsource scl_source enable llvm-toolset-7.0\nsource scl_source enable rh-ruby26\nunset BASH_ENV PROMPT_COMMAND ENV" > /usr/bin/scl_enable_centos7 \
-	&& chmod +x /usr/bin/scl_enable_centos7
+	&& chmod +x /usr/bin/scl_enable_centos7 \
+	&& echo -e "PATH=${PATH}:\$PATH\nPATH=\$(echo -n \$PATH | awk -v RS=: -v FS=: '!(\$1 in a) {a[\$1]; if (length(a) > 1) printf \":\"; printf \$1}')\nexport PATH=\$PATH" >> ~/.bashrc \
+	&& echo -e "source /usr/bin/scl_enable_centos7" >> ~/.bashrc
 
 ENV BASH_ENV="/usr/bin/scl_enable_centos7" ENV="/usr/bin/scl_enable_centos7" PROMPT_COMMAND=". /usr/bin/scl_enable_centos7"
