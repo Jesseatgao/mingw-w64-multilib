@@ -2,9 +2,9 @@
 MinGW-w64: cross compile multilib toolchain docker image based on centos7 targetting win64 and win32
 
 ## Docker Images with Tags
-* `cgdoc/mingw-w64-multilib:posix-v1.1`
+* `cgdoc/mingw-w64-multilib:posix-v1.2`
     * Source
-        * [Dockerfile](https://github.com/Jesseatgao/mingw-w64-multilib/releases/tag/posix-v1.1)
+        * [Dockerfile](https://github.com/Jesseatgao/mingw-w64-multilib/releases/tag/posix-v1.2)
 	* Base Image
 		* Centos 7
 	* Cross Compilation Toolchain
@@ -22,43 +22,16 @@ MinGW-w64: cross compile multilib toolchain docker image based on centos7 target
 	* Build System
 		* `make`: GNU Make 4.2.1
 		* `cmake`: 3.6.2
-		* `meson`: 0.55.0
-		* `rake`: Ruby Make 13.0.1 (Ruby 2.6)
+		* `meson`: 0.61.4
+		* `rake`: Ruby Make 13.0.6 (Ruby 2.6)
 	* Repos
 		* CentOS 7 Base
 		* CentOS 7 SCL
 		* EPEL 7
 
-* `cgdoc/mingw-w64-multilib:posix-v1.0`
+* `cgdoc/mingw-w64-multilib:win32-v1.1`
     * Source
-        * [Dockerfile](https://github.com/Jesseatgao/mingw-w64-multilib/releases/tag/posix-v1.0)
-	* Base Image
-		* Centos 7
-	* Cross Compilation Toolchain
-		* `MinGW-w64`: 7.0.0
-		* `GCC`: 10.1.0
-		* `Binutils`: 2.34
-		* Thread model: `posix`
-		* Languages: C, C++
-		* Thread support: C++ 11 Thread, POSIX Threads
-	* Native Compilation Toolchain
-		* `GCC`: 9.1.1
-		* `Binutils`: 2.32
-		* Thread model: `posix`
-		* Languages: C,C++,FORTRAN
-	* Build System
-		* `make`: GNU Make 4.2.1
-		* `cmake`: 3.6.2
-		* `meson`: 0.54.3
-		* `rake`: Ruby Make 13.0.1 (Ruby 2.6)
-	* Repos
-		* CentOS 7 Base
-		* CentOS 7 SCL
-		* EPEL 7
-		
-* `cgdoc/mingw-w64-multilib:win32-v1.0`
-    * Source
-        * [Dockerfile](https://github.com/Jesseatgao/mingw-w64-multilib/releases/tag/win32-v1.0)
+        * [Dockerfile](https://github.com/Jesseatgao/mingw-w64-multilib/releases/tag/win32-v1.1)
 	* Base Image
 		* Centos 7
 	* Cross Compilation Toolchain
@@ -76,8 +49,8 @@ MinGW-w64: cross compile multilib toolchain docker image based on centos7 target
 	* Build System
 		* `make`: GNU Make 4.2.1
 		* `cmake`: 3.6.2
-		* `meson`: 0.55.0
-		* `rake`: Ruby Make 13.0.1 (Ruby 2.6)
+		* `meson`: 0.61.4
+		* `rake`: Ruby Make 13.0.6 (Ruby 2.6)
 	* Repos
 		* CentOS 7 Base
 		* CentOS 7 SCL
@@ -85,13 +58,35 @@ MinGW-w64: cross compile multilib toolchain docker image based on centos7 target
 
 ## Usage
 * For cross-compiling win32 target: see for example
-	* [Cross compile Aria2 i686 on CentOS 7](https://github.com/Jesseatgao/aria2-patched-static-build/blob/master/Dockerfile.i686.mingw)
-	* [Cross compile common devel packages(header files and libs)](https://github.com/Jesseatgao/mingw-w64-libs)
-	* [Cross compile MKVToolNix (mkvmerge)](https://github.com/Jesseatgao/MKVToolNix-static-builds)
+    * [Cross compile Aria2 i686 on CentOS 7](https://github.com/Jesseatgao/aria2-patched-static-build/blob/master/Dockerfile.i686.mingw)
+    * [Cross compile common devel packages(header files and libs)](https://github.com/Jesseatgao/mingw-w64-libs)
+    * [Cross compile MKVToolNix (mkvmerge)](https://github.com/Jesseatgao/MKVToolNix-static-builds)
 * cross-compiling win64 target: see for example
-	* [Cross compile Aria2 x86_64 on CentOS 7](https://github.com/Jesseatgao/aria2-patched-static-build/blob/master/Dockerfile.x86_64.mingw)
-	* [Cross compile common devel packages(header files and libs)](https://github.com/Jesseatgao/mingw-w64-libs)
-	* [Cross compile MKVToolNix (mkvmerge)](https://github.com/Jesseatgao/MKVToolNix-static-builds)
+    * [Cross compile Aria2 x86_64 on CentOS 7](https://github.com/Jesseatgao/aria2-patched-static-build/blob/master/Dockerfile.x86_64.mingw)
+    * [Cross compile common devel packages(header files and libs)](https://github.com/Jesseatgao/mingw-w64-libs)
+    * [Cross compile MKVToolNix (mkvmerge)](https://github.com/Jesseatgao/MKVToolNix-static-builds)
+* working with WSL:
+1. Create a temporary container from an image, say, cgdoc/mingw-w64-multilib:win32-v1.1  
+```shell
+docker create --name centos7-extended cgdoc/mingw-w64-multilib:win32-v1.1
+```
+2. Export the container as a tar archive
+```shell
+docker export centos7-extended > centos7-extended.tar
+```
+3. Import the distro tar file into WSL
+```shell
+wsl --import centos7-extended . centos7-extended.tar
+```
+4. (optional) Remove the container and the tar file
+```shell
+docker rm centos7-extended
+del /f centos7-extended.tar
+```
+5. Run the imported CentOS Linux distro
+```shell
+wsl -d centos7-extended
+```
 
 ## Donation
     If you like the project, please support it by donation
