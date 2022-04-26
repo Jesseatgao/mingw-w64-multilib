@@ -38,6 +38,7 @@ RUN	yum install -y centos-release-scl epel-release && yum makecache \
 	&& yum clean all \
 \
 	&& echo -e "source scl_source enable devtoolset-9\nsource scl_source enable llvm-toolset-7.0\nsource scl_source enable rh-ruby26\nunset BASH_ENV PROMPT_COMMAND ENV" > /usr/bin/scl_enable_centos7 \
+    && echo -e "PATH=\$(echo -n \$PATH | awk -v RS=: -v FS=: '!(\$1 in a) {a[\$1]; if (length(a) > 1) printf \":\"; printf \$1}')\nexport PATH=\$PATH"  >> /usr/bin/scl_enable_centos7 \
 	&& chmod +x /usr/bin/scl_enable_centos7 && source /usr/bin/scl_enable_centos7 \
 	&& gem install rake && pip3 install --upgrade --no-cache-dir meson \
 \
