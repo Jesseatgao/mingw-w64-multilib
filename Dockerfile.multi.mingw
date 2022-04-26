@@ -154,7 +154,7 @@ RUN	yum install -y centos-release-scl epel-release && yum makecache \
 	&& rm -rf $SRC \
 	&& strip -s $MINGW/bin/$TARGET-* && strip -s $MINGW/$TARGET/lib/*.dll && strip -s $MINGW/$TARGET/lib32/*.dll \
 	&& cd $MINGW/libexec/gcc/$TARGET/$GCC_VER && strip -s cc1 cc1plus collect2 lto-wrapper lto1 \
-	&& echo -e "PATH=${PATH}:\$PATH\nPATH=\$(echo -n \$PATH | awk -v RS=: -v FS=: '!(\$1 in a) {a[\$1]; if (length(a) > 1) printf \":\"; printf \$1}')\nexport PATH=\$PATH" >> ~/.bashrc \
-	&& echo -e "source /usr/bin/scl_enable_centos7" >> ~/.bashrc
+	&& echo -e "PATH=${PATH}:\$PATH\nPATH=\$(echo -n \$PATH | awk -v RS=: -v FS=: '!(\$1 in a) {a[\$1]; if (length(a) > 1) printf \":\"; printf \$1}')\nexport PATH=\$PATH" >> /etc/profile.d/enable_mingw_scl.sh \
+	&& echo -e ". /usr/bin/scl_enable_centos7" >> /etc/profile.d/enable_mingw_scl.sh
 
 ENV BASH_ENV="/usr/bin/scl_enable_centos7" ENV="/usr/bin/scl_enable_centos7" PROMPT_COMMAND=". /usr/bin/scl_enable_centos7"
