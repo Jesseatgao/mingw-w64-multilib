@@ -37,7 +37,8 @@ RUN	yum install -y centos-release-scl epel-release && yum makecache \
 	&& yum localinstall -y https://yum.oracle.com/repo/OracleLinux/OL7/SoftwareCollections/x86_64/getPackage/devtoolset-9-libstdc++-devel-${RH_DTS_GCC_VER}.el7.i686.rpm \
 	&& yum clean all \
 \
-	&& source scl_source enable devtoolset-9 && source scl_source enable rh-ruby26 \
+	&& echo -e "source scl_source enable devtoolset-9\nsource scl_source enable llvm-toolset-7.0\nsource scl_source enable rh-ruby26\nunset BASH_ENV PROMPT_COMMAND ENV" > /usr/bin/scl_enable_centos7 \
+	&& chmod +x /usr/bin/scl_enable_centos7 && source /usr/bin/scl_enable_centos7 \
 	&& gem install rake && pip3 install --upgrade --no-cache-dir meson \
 \
 \
@@ -147,14 +148,10 @@ RUN	yum install -y centos-release-scl epel-release && yum makecache \
 	&& sed -i '/\*cc1plus:/!b; n; s%\(.*\)%\1 -I/opt/mingw32/x86_64-w64-mingw32/include -I/opt/mingw32/i686-w64-mingw32/include -I/opt/mingw32/include%' specs \
 	&& sed -i '/\*link_libgcc:/!b; n; s%\(.*\)%\1 -L/opt/mingw32/x86_64-w64-mingw32/lib -L/opt/mingw32/i686-w64-mingw32/lib -L/opt/mingw32/lib%' specs \
 \
-	&& echo -e "source scl_source enable devtoolset-9\nsource scl_source enable llvm-toolset-7.0\nsource scl_source enable rh-ruby26\nunset BASH_ENV PROMPT_COMMAND ENV" > /usr/bin/scl_enable_centos7 \
-	&& chmod +x /usr/bin/scl_enable_centos7 \
-\
 	&& cd $BUILDROOT && rm -rf $BUILDROOT/binutils $BUILDROOT/headers $BUILDROOT/gcc $BUILDROOT/mingw $BUILDROOT/pthreads4w \
 	&& rm -rf $SRC \
 	&& strip -s $MINGW/bin/$TARGET-* && strip -s $MINGW/$TARGET/lib/*.dll && strip -s $MINGW/$TARGET/lib32/*.dll \
 	&& cd $MINGW/libexec/gcc/$TARGET/$GCC_VER && strip -s cc1 cc1plus collect2 lto-wrapper lto1 \
-	&& echo -e "PATH=${PATH}:\$PATH\nPATH=\$(echo -n \$PATH | awk -v RS=: -v FS=: '!(\$1 in a) {a[\$1]; if (length(a) > 1) printf \":\"; printf \$1}')\nexport PATH=\$PATH" >> /etc/profile.d/enable_mingw_scl.sh \
-	&& echo -e ". /usr/bin/scl_enable_centos7" >> /etc/profile.d/enable_mingw_scl.sh
+	&& echo -e "PATH=${PATH}:\$PATH\nPATH=\$(echo -n \$PATH | awk -v RS=: -v FS=: '!(\$1 in a) {a[\$1]; if (length(a) > 1) printf \":\"; printf \$1}')\nexport PATH=\$PATH" >> /etc/profile.d/enable_mingw_scl.sh
 
 ENV BASH_ENV="/usr/bin/scl_enable_centos7" ENV="/usr/bin/scl_enable_centos7" PROMPT_COMMAND=". /usr/bin/scl_enable_centos7"
