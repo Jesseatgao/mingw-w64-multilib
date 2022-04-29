@@ -32,13 +32,13 @@ ARG RH_DTS_GCC_VER=9.3.1-2
 
 RUN	yum install -y centos-release-scl epel-release && yum makecache \
 	&& yum install -y --setopt=tsflags=nodocs devtoolset-9-gcc-c++-${RH_DTS_GCC_VER}.el7 devtoolset-9-make bison flex gperf patch autoconf automake \
-		libtool gettext-devel bzip2 unzip file texinfo glibc-devel glibc-devel.i686 llvm-toolset-7.0-cmake rh-ruby26 meson \
+		libtool gettext-devel bzip2 unzip file texinfo glibc-devel glibc-devel.i686 llvm-toolset-7.0-cmake rh-ruby26 meson sudo wget \
 		glibc-static.i686 glibc-static.x86_64 \
 	&& yum localinstall -y https://yum.oracle.com/repo/OracleLinux/OL7/SoftwareCollections/x86_64/getPackage/devtoolset-9-libstdc++-devel-${RH_DTS_GCC_VER}.el7.i686.rpm \
 	&& yum clean all \
 \
 	&& echo -e "source scl_source enable devtoolset-9\nsource scl_source enable llvm-toolset-7.0\nsource scl_source enable rh-ruby26\nunset BASH_ENV PROMPT_COMMAND ENV" > /usr/bin/scl_enable_centos7 \
-	&& echo -e "PATH=\$(echo -n \$PATH | awk -v RS=: -v FS=: '!(\$1 in a) {a[\$1]; if (length(a) > 1) printf \":\"; printf \$1}')\nexport PATH=\$PATH"  >> /usr/bin/scl_enable_centos7 \
+	&& echo -e "PATH=$MINGW/bin:\$PATH\nPATH=\$(echo -n \$PATH | awk -v RS=: -v FS=: '!(\$1 in a) {a[\$1]; if (length(a) > 1) printf \":\"; printf \$1}')\nexport PATH=\$PATH"  >> /usr/bin/scl_enable_centos7 \
 	&& chmod +x /usr/bin/scl_enable_centos7 && source /usr/bin/scl_enable_centos7 \
 	&& gem install rake && pip3 install --upgrade --no-cache-dir meson \
 \
@@ -153,6 +153,7 @@ RUN	yum install -y centos-release-scl epel-release && yum makecache \
 	&& rm -rf $SRC \
 	&& strip -s $MINGW/bin/$TARGET-* && strip -s $MINGW/$TARGET/lib/*.dll && strip -s $MINGW/$TARGET/lib32/*.dll \
 	&& cd $MINGW/libexec/gcc/$TARGET/$GCC_VER && strip -s cc1 cc1plus collect2 lto-wrapper lto1 \
-	&& echo -e ". /usr/bin/scl_enable_centos7\nalias sudo='/usr/bin/sudo env PATH=\"\$PATH\"'" >> /etc/profile.d/enable_mingw_scl.sh
+	&& echo -e ". /usr/bin/scl_enable_centos7\nalias sudo='/usr/bin/sudo env PATH=\"\$PATH\" MANPATH=\"\$MANPATH\" X_SCLS=\"\$X_SCLS\" PCP_DIR=\"\$PCP_DIR\" \
+LD_LIBRARY_PATH=\"\$LD_LIBRARY_PATH\" PYTHONPATH=\"\$PYTHONPATH\" XDG_DATA_DIRS=\"\$XDG_DATA_DIRS\" PKG_CONFIG_PATH=\"\$PKG_CONFIG_PATH\" INFOPATH=\"\$INFOPATH\"'" >> /etc/profile.d/enable_mingw_scl.sh
 
 ENV BASH_ENV="/usr/bin/scl_enable_centos7" ENV="/usr/bin/scl_enable_centos7" PROMPT_COMMAND=". /usr/bin/scl_enable_centos7"
