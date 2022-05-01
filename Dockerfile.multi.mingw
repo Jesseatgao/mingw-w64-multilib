@@ -153,7 +153,9 @@ RUN	yum install -y centos-release-scl epel-release && yum makecache \
 	&& rm -rf $SRC \
 	&& strip -s $MINGW/bin/$TARGET-* && strip -s $MINGW/$TARGET/lib/*.dll && strip -s $MINGW/$TARGET/lib32/*.dll \
 	&& cd $MINGW/libexec/gcc/$TARGET/$GCC_VER && strip -s cc1 cc1plus collect2 lto-wrapper lto1 \
-	&& echo -e ". /usr/bin/scl_enable_centos7\nalias sudo='/usr/bin/sudo env PATH=\"\$PATH\" MANPATH=\"\$MANPATH\" X_SCLS=\"\$X_SCLS\" PCP_DIR=\"\$PCP_DIR\" \
-LD_LIBRARY_PATH=\"\$LD_LIBRARY_PATH\" PYTHONPATH=\"\$PYTHONPATH\" XDG_DATA_DIRS=\"\$XDG_DATA_DIRS\" PKG_CONFIG_PATH=\"\$PKG_CONFIG_PATH\" INFOPATH=\"\$INFOPATH\"'" >> /etc/profile.d/enable_mingw_scl.sh
+	&& echo -e ". /usr/bin/scl_enable_centos7" >> /etc/profile.d/enable_mingw_scl.sh \
+	&& sed -i 's%^exec .*"\$cmd_options"$%if [ "\$cmd_options" == "" ]; then\n    exec /usr/bin/sudo \$sudo_options\nelse\n    exec /usr/bin/sudo \$sudo_options \
+env PATH="\$PATH" MANPATH="\$MANPATH" X_SCLS="\$X_SCLS" PCP_DIR="\$PCP_DIR" LD_LIBRARY_PATH="\$LD_LIBRARY_PATH" PYTHONPATH="\$PYTHONPATH" XDG_DATA_DIRS="\$XDG_DATA_DIRS" \
+PKG_CONFIG_PATH="\$PKG_CONFIG_PATH" INFOPATH="\$INFOPATH" /bin/bash -c "\$cmd_options"\nfi%' /opt/rh/devtoolset-9/root/usr/bin/sudo
 
 ENV BASH_ENV="/usr/bin/scl_enable_centos7" ENV="/usr/bin/scl_enable_centos7" PROMPT_COMMAND=". /usr/bin/scl_enable_centos7"
