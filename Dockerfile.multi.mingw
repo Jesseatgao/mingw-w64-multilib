@@ -36,9 +36,10 @@ ARG RH_LTS_VER=7.0
 ARG RH_RUBY_VER=26
 
 
-RUN	yum install -y centos-release-scl epel-release && yum makecache \
-	&& yum install -y --setopt=tsflags=nodocs devtoolset-${RH_DTS_VER}-gcc-c++-${RH_DTS_GCC_VER}.el7 devtoolset-${RH_DTS_VER}-make bison flex gperf patch autoconf automake \
-		libtool gettext-devel bzip2 unzip file texinfo glibc-devel glibc-devel.i686 llvm-toolset-${RH_LTS_VER}-cmake rh-ruby${RH_RUBY_VER} meson sudo wget \
+RUN	sed -i 's/^tsflags=nodocs$/# tsflags=nodocs/' /etc/yum.conf \
+    && yum install -y centos-release-scl epel-release && yum makecache \
+	&& yum install -y devtoolset-${RH_DTS_VER}-gcc-c++-${RH_DTS_GCC_VER}.el7 devtoolset-${RH_DTS_VER}-make bison flex gperf patch autoconf automake \
+		libtool gettext-devel bzip2 unzip file texinfo glibc-devel glibc-devel.i686 llvm-toolset-${RH_LTS_VER}-cmake rh-ruby${RH_RUBY_VER} meson sudo wget man man-pages \
 		glibc-static.i686 glibc-static.x86_64 \
 	&& yum localinstall -y https://yum.oracle.com/repo/OracleLinux/OL7/SoftwareCollections/x86_64/getPackage/devtoolset-${RH_DTS_VER}-libstdc++-devel-${RH_DTS_GCC_VER}.el7.i686.rpm \
 	&& yum clean all \
