@@ -38,10 +38,12 @@ ARG RH_RUBY_VER=26
 # non-root, nopasswd sudoer in *wheel* group
 ARG NONROOT_USER=centos
 ARG NONROOT_UID=1000
+ARG NONROOT_GRP=$NONROOT_USER
+ARG NONROOT_GID=$NONROOT_UID
 
 
 RUN	sed -i 's/^tsflags=nodocs$/# tsflags=nodocs/' /etc/yum.conf \
-    && yum install -y centos-release-scl epel-release && yum makecache \
+    && yum install -y centos-release-scl epel-release && yum makecache && yum update -y \
     && yum install -y devtoolset-${RH_DTS_VER}-gcc-c++-${RH_DTS_GCC_VER}.el7 devtoolset-${RH_DTS_VER}-make bison flex gperf patch autoconf automake \
         libtool gettext-devel bzip2 unzip file texinfo glibc-devel glibc-devel.i686 llvm-toolset-${RH_LTS_VER}-cmake rh-ruby${RH_RUBY_VER} meson sudo wget man man-pages \
         glibc-static.i686 glibc-static.x86_64 \
@@ -169,7 +171,7 @@ RUN	sed -i 's/^tsflags=nodocs$/# tsflags=nodocs/' /etc/yum.conf \
 env PATH="\$PATH" LD_LIBRARY_PATH="\$LD_LIBRARY_PATH" scl enable devtoolset-'${RH_DTS_VER}' llvm-toolset-'${RH_LTS_VER}' rh-ruby'${RH_RUBY_VER}' "\$cmd_options"\nfi%' \
 /opt/rh/devtoolset-${RH_DTS_VER}/root/usr/bin/sudo \
     && sed -i '/^%wheel/!b; s/^/# /; n; n; n; s/^# //' /etc/sudoers \
-    && useradd -u ${NONROOT_UID} -g wheel -m ${NONROOT_USER} \
+    && groupadd -g ${NONROOT_GID} ${NONROOT_GRP} && useradd -u ${NONROOT_UID} -g ${NONROOT_GRP} -G wheel -m ${NONROOT_USER} \
     && echo -e "[user]\ndefault=${NONROOT_USER}" >> /etc/wsl.conf
 
 ENV BASH_ENV="/usr/bin/scl_enable_centos7" ENV="/usr/bin/scl_enable_centos7" PROMPT_COMMAND=". /usr/bin/scl_enable_centos7"
