@@ -2,9 +2,9 @@
 MinGW-w64: cross compile multilib toolchain docker image based on centos7 targetting win64 and win32
 
 ## Docker Images with Tags
-* `cgdoc/mingw-w64-multilib:posix-v1.2`
+* `cgdoc/mingw-w64-multilib:posix-v1.3`
     * Source
-        * [Dockerfile](https://github.com/Jesseatgao/mingw-w64-multilib/releases/tag/posix-v1.2)
+        * [Dockerfile](https://github.com/Jesseatgao/mingw-w64-multilib/releases/tag/posix-v1.3)
 	* Base Image
 		* Centos 7
 	* Cross Compilation Toolchain
@@ -13,7 +13,7 @@ MinGW-w64: cross compile multilib toolchain docker image based on centos7 target
 		* `Binutils`: 2.34
 		* Thread model: `posix`
 		* Languages: C, C++
-		* Thread support: C++ 11 Thread, POSIX Threads
+		* Thread support: C++ 11 Thread, POSIX Threads (winpthreads)
 	* Native Compilation Toolchain
 		* `GCC`: 9.3.1
 		* `Binutils`: 2.32
@@ -29,9 +29,9 @@ MinGW-w64: cross compile multilib toolchain docker image based on centos7 target
 		* CentOS 7 SCL
 		* EPEL 7
 
-* `cgdoc/mingw-w64-multilib:win32-v1.1`
+* `cgdoc/mingw-w64-multilib:win32-v1.2`
     * Source
-        * [Dockerfile](https://github.com/Jesseatgao/mingw-w64-multilib/releases/tag/win32-v1.1)
+        * [Dockerfile](https://github.com/Jesseatgao/mingw-w64-multilib/releases/tag/win32-v1.2)
 	* Base Image
 		* Centos 7
 	* Cross Compilation Toolchain
@@ -66,9 +66,9 @@ MinGW-w64: cross compile multilib toolchain docker image based on centos7 target
     * [Cross compile common devel packages(header files and libs)](https://github.com/Jesseatgao/mingw-w64-libs)
     * [Cross compile MKVToolNix (mkvmerge)](https://github.com/Jesseatgao/MKVToolNix-static-builds)
 * working with WSL:
-1. Create a temporary container from an image, say, cgdoc/mingw-w64-multilib:win32-v1.1  
+1. Create a temporary container from an image, say, cgdoc/mingw-w64-multilib:win32-v1.2
 ```shell
-docker create --name centos7-extended cgdoc/mingw-w64-multilib:win32-v1.1
+docker create --name centos7-extended cgdoc/mingw-w64-multilib:win32-v1.2
 ```
 2. Export the container as a tar archive
 ```shell
