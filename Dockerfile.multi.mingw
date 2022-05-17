@@ -43,6 +43,8 @@ ARG NONROOT_GID=$NONROOT_UID
 
 
 RUN sed -i 's/^tsflags=nodocs$/# tsflags=nodocs/' /etc/yum.conf \
+    && yum -y reinstall "*" && yum clean all \
+\
     && yum install -y centos-release-scl epel-release && yum makecache && yum update -y \
     && yum install -y devtoolset-${RH_DTS_VER}-gcc-c++-${RH_DTS_GCC_VER}.el7 devtoolset-${RH_DTS_VER}-make bison flex gperf patch autoconf automake \
         libtool gettext-devel bzip2 unzip file texinfo glibc-devel glibc-devel.i686 llvm-toolset-${RH_LTS_VER}-cmake rh-ruby${RH_RUBY_VER} meson sudo wget man man-pages \
