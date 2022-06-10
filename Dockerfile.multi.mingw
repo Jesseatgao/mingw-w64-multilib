@@ -47,7 +47,7 @@ RUN	sed -i 's/^tsflags=nodocs$/# tsflags=nodocs/' /etc/yum.conf \
 \
     && yum install -y centos-release-scl epel-release && yum makecache && yum update -y \
     && yum install -y devtoolset-${RH_DTS_VER}-gcc-c++-${RH_DTS_GCC_VER}.el7 devtoolset-${RH_DTS_VER}-make bison flex gperf patch autoconf automake \
-        libtool gettext-devel bzip2 unzip file texinfo glibc-devel glibc-devel.i686 llvm-toolset-${RH_LTS_VER}-cmake rh-ruby${RH_RUBY_VER} meson sudo wget man man-pages \
+        libtool gettext-devel bzip2 unzip file texinfo glibc-devel glibc-devel.i686 llvm-toolset-${RH_LTS_VER}-cmake rh-ruby${RH_RUBY_VER} python3 sudo wget man man-pages \
         glibc-static.i686 glibc-static.x86_64 \
     && yum localinstall -y https://yum.oracle.com/repo/OracleLinux/OL7/SoftwareCollections/x86_64/getPackage/devtoolset-${RH_DTS_VER}-libstdc++-devel-${RH_DTS_GCC_VER}.el7.i686.rpm \
     && yum clean all \
@@ -55,7 +55,7 @@ RUN	sed -i 's/^tsflags=nodocs$/# tsflags=nodocs/' /etc/yum.conf \
     && echo -e "source scl_source enable devtoolset-${RH_DTS_VER}\nsource scl_source enable llvm-toolset-${RH_LTS_VER}\nsource scl_source enable rh-ruby${RH_RUBY_VER}\nunset BASH_ENV PROMPT_COMMAND ENV" > /usr/bin/scl_enable_centos7 \
     && echo -e "PATH=$MINGW/bin:\$PATH\nPATH=\$(echo -n \$PATH | awk -v RS=: -v FS=: '!(\$1 in a) {a[\$1]; if (length(a) > 1) printf \":\"; printf \$1}')\nexport PATH=\$PATH"  >> /usr/bin/scl_enable_centos7 \
     && chmod +x /usr/bin/scl_enable_centos7 && source /usr/bin/scl_enable_centos7 \
-    && gem install rake && pip3 install --upgrade --no-cache-dir meson \
+    && gem install rake && pip3 install --no-cache-dir meson virtualenv \
 \
 \
     && mkdir -p $MINGW && mkdir -p $SRC && cd $SRC \
