@@ -39,6 +39,8 @@ ARG RH_LTS_VER=7.0
 ARG CMAKE_VER=3.23.2
 
 ARG RH_RUBY_VER=26
+ARG RUBY_INSTALL_VER=0.8.3
+ARG CHRUBY_VER=0.3.9
 
 # non-root, nopasswd sudoer in *wheel* group
 ARG NONROOT_USER=centos
@@ -47,7 +49,7 @@ ARG NONROOT_GRP=$NONROOT_USER
 ARG NONROOT_GID=$NONROOT_UID
 
 
-RUN	sed -i 's/^tsflags=nodocs$/# tsflags=nodocs/' /etc/yum.conf \
+RUN sed -i 's/^tsflags=nodocs$/# tsflags=nodocs/' /etc/yum.conf \
     && yum -y reinstall "*" \
 \
     && yum install -y centos-release-scl epel-release && yum makecache && yum update -y \
@@ -63,7 +65,7 @@ RUN	sed -i 's/^tsflags=nodocs$/# tsflags=nodocs/' /etc/yum.conf \
     && echo -e "source scl_source enable devtoolset-${RH_DTS_VER}\nsource scl_source enable llvm-toolset-${RH_LTS_VER}\nsource scl_source enable rh-ruby${RH_RUBY_VER}\nunset BASH_ENV PROMPT_COMMAND ENV" > /usr/bin/scl_enable_centos7 \
     && echo -e "PATH=$MINGW/bin:\$PATH\nPATH=\$(echo -n \$PATH | awk -v RS=: -v FS=: '!(\$1 in a) {a[\$1]; if (length(a) > 1) printf \":\"; printf \$1}')\nexport PATH=\$PATH"  >> /usr/bin/scl_enable_centos7 \
     && chmod +x /usr/bin/scl_enable_centos7 && source /usr/bin/scl_enable_centos7 \
-    && gem install rake && pip3 install --no-cache-dir meson virtualenv \
+    && gem install rake && pip3 install --no-cache-dir -U pip && pip install --no-cache-dir meson virtualenv \
 \
 \
     && mkdir -p $SRC $BUILDROOT $MINGW && cd $SRC \
@@ -77,6 +79,8 @@ RUN	sed -i 's/^tsflags=nodocs$/# tsflags=nodocs/' /etc/yum.conf \
     && curl -L -O https://sourceforge.net/projects/pthreads4w/files/pthreads4w-code-v$PTHREADS4W_VER.zip \
     && curl -L -o mingw-std-threads-master.zip https://github.com/meganz/mingw-std-threads/archive/master.zip \
     && curl -L -O https://github.com/Kitware/CMake/releases/download/v$CMAKE_VER/cmake-$CMAKE_VER.tar.gz \
+    && curl -L -o ruby-install-$RUBY_INSTALL_VER.tar.gz https://github.com/postmodern/ruby-install/archive/v$RUBY_INSTALL_VER.tar.gz \
+    && curl -L -o chruby-$CHRUBY_VER.tar.gz https://github.com/postmodern/chruby/archive/v$CHRUBY_VER.tar.gz \
 \
     && tar Jxvf gcc-$GCC_VER.tar.xz \
     && tar Jxvf binutils-$BINUTILS_VER.tar.xz \
@@ -88,6 +92,8 @@ RUN	sed -i 's/^tsflags=nodocs$/# tsflags=nodocs/' /etc/yum.conf \
     && mkdir pthreads4w && unzip -d pthreads4w pthreads4w-code-v$PTHREADS4W_VER.zip && mv pthreads4w/pthreads4w-code*/* pthreads4w/ \
     && unzip mingw-std-threads-master.zip \
     && tar zxvf cmake-$CMAKE_VER.tar.gz \
+    && tar zxvf ruby-install-$RUBY_INSTALL_VER.tar.gz \
+    && tar zxvf chruby-$CHRUBY_VER.tar.gz \
 \
     && mv mpfr-$MPFR_VER gcc-$GCC_VER/mpfr \
     && mv gmp-$GMP_VER gcc-$GCC_VER/gmp \
@@ -173,14 +179,19 @@ RUN	sed -i 's/^tsflags=nodocs$/# tsflags=nodocs/' /etc/yum.conf \
     && $SRC/cmake-$CMAKE_VER/bootstrap --prefix=/opt/rh/llvm-toolset-$RH_LTS_VER/root/usr --mandir=share/man --sphinx-man -- -DBUILD_CursesDialog=True \
     && make && make install \
 \
+    && cd $SRC/ruby-install-$RUBY_INSTALL_VER && make PREFIX=/usr/local DESTDIR= install \
+    && cd $SRC/chruby-$CHRUBY_VER && make PREFIX=/usr/local install \
+    && echo -e "source /usr/local/share/chruby/chruby.sh\nsource /usr/local/share/chruby/auto.sh" > /etc/profile.d/chruby.sh \
+\
+    && cd / && rm -rf $SRC $BUILDROOT \
+    && strip -s $MINGW/bin/$TARGET-* && strip -s $MINGW/$TARGET/lib/*.dll && strip -s $MINGW/$TARGET/lib32/*.dll \
+    && cd $MINGW/libexec/gcc/$TARGET/$GCC_VER && strip -s cc1 cc1plus collect2 lto-wrapper lto1 \
+\
     && cd $MINGW/lib/gcc/$TARGET/$GCC_VER && $TARGET-gcc -dumpspecs > specs \
     && sed -i '/\*cpp:/!b; n; s%\(.*\)%\1 -I/opt/mingw32/x86_64-w64-mingw32/include -I/opt/mingw32/i686-w64-mingw32/include -I/opt/mingw32/include%' specs \
     && sed -i '/\*cc1plus:/!b; n; s%\(.*\)%\1 -I/opt/mingw32/x86_64-w64-mingw32/include -I/opt/mingw32/i686-w64-mingw32/include -I/opt/mingw32/include%' specs \
     && sed -i '/\*link_libgcc:/!b; n; s%\(.*\)%\1 -L/opt/mingw32/x86_64-w64-mingw32/lib -L/opt/mingw32/i686-w64-mingw32/lib -L/opt/mingw32/lib%' specs \
 \
-    && cd / && rm -rf $SRC $BUILDROOT \
-    && strip -s $MINGW/bin/$TARGET-* && strip -s $MINGW/$TARGET/lib/*.dll && strip -s $MINGW/$TARGET/lib32/*.dll \
-    && cd $MINGW/libexec/gcc/$TARGET/$GCC_VER && strip -s cc1 cc1plus collect2 lto-wrapper lto1 \
     && echo -e ". /usr/bin/scl_enable_centos7" >> /etc/profile.d/enable_mingw_scl.sh \
     && sed -i 's%^exec .*"\$cmd_options"$%if [ "\$cmd_options" == "" ]; then\n    exec /usr/bin/sudo \$sudo_options\nelse\n    exec /usr/bin/sudo \$sudo_options \
 env PATH="\$PATH" LD_LIBRARY_PATH="\$LD_LIBRARY_PATH" scl enable devtoolset-'${RH_DTS_VER}' llvm-toolset-'${RH_LTS_VER}' rh-ruby'${RH_RUBY_VER}' "\$cmd_options"\nfi%' \
