@@ -7,9 +7,11 @@ SHELL ["/bin/bash", "-c"]
 ARG BUILD=x86_64-unknown-linux-gnu
 ARG TARGET=x86_64-w64-mingw32
 ARG TARGET_X86=i686-w64-mingw32
-ARG BUILDROOT=/usr/local
-ARG SRC=$BUILDROOT/_src
-ARG MINGW=$BUILDROOT/mingw32
+ARG INSTALLROOT=/usr/local
+ARG SRC=/opt/_src
+ARG BUILDROOT=/opt/_build
+
+ARG MINGW=$INSTALLROOT/mingw32
 ARG PREFIX=$MINGW
 
 ARG CFLAGS=
@@ -18,22 +20,27 @@ ARG LDFLAGS=
 
 ENV PATH $PREFIX/bin:$PATH
 
-ARG GCC_VER=10.1.0
-ARG BINUTILS_VER=2.34
-ARG MPFR_VER=4.0.2
-ARG GMP_VER=6.2.0
-ARG MPC_VER=1.1.0
-ARG ISL_VER=0.21
+ARG GCC_VER=11.3.0
+ARG BINUTILS_VER=2.38
+ARG MPFR_VER=4.1.0
+ARG GMP_VER=6.2.1
+ARG MPC_VER=1.2.1
+ARG ISL_VER=0.24
 
-ARG MINGW_VER=7.0.0
+ARG MINGW_VER=10.0.0
 
 # Red Hat Developer Toolset
-ARG RH_DTS_VER=9
-ARG RH_DTS_GCC_VER=9.3.1-2
+ARG RH_DTS_VER=11
+ARG RH_DTS_GCC_VER=11.2.1-1.2
 
 # Clang and LLVM Toolset
 ARG RH_LTS_VER=7.0
+# override the old `cmake` in the LLVM Toolset
+ARG CMAKE_VER=3.23.2
+
 ARG RH_RUBY_VER=26
+ARG RUBY_INSTALL_VER=0.8.3
+ARG CHRUBY_VER=0.3.9
 
 # non-root, nopasswd sudoer in *wheel* group
 ARG NONROOT_USER=centos
@@ -49,6 +56,9 @@ RUN sed -i 's/^tsflags=nodocs$/# tsflags=nodocs/' /etc/yum.conf \
     && yum install -y devtoolset-${RH_DTS_VER}-gcc-c++-${RH_DTS_GCC_VER}.el7 devtoolset-${RH_DTS_VER}-make bison flex gperf patch autoconf automake \
         libtool gettext-devel bzip2 unzip file texinfo glibc-devel glibc-devel.i686 llvm-toolset-${RH_LTS_VER}-cmake rh-ruby${RH_RUBY_VER} python3 sudo wget man man-pages \
         glibc-static.i686 glibc-static.x86_64 \
+\
+        openssl-devel python-sphinx ncurses-devel \
+\
     && yum localinstall -y https://yum.oracle.com/repo/OracleLinux/OL7/SoftwareCollections/x86_64/getPackage/devtoolset-${RH_DTS_VER}-libstdc++-devel-${RH_DTS_GCC_VER}.el7.i686.rpm \
     && yum clean all \
 \
@@ -57,10 +67,10 @@ unset BASH_ENV PROMPT_COMMAND ENV" > /usr/bin/scl_enable_centos7 \
     && echo -e "PATH=$MINGW/bin:\$PATH\nPATH=\$(echo -n \$PATH | awk -v RS=: -v FS=: '!(\$1 in a) {a[\$1]; if (length(a) > 1) printf \":\"; printf \$1}')\nexport PATH=\$PATH"  \
 >> /usr/bin/scl_enable_centos7 \
     && chmod +x /usr/bin/scl_enable_centos7 && source /usr/bin/scl_enable_centos7 \
-    && gem install rake && pip3 install --no-cache-dir meson virtualenv \
+    && gem install rake && pip3 install --no-cache-dir -U pip && pip install --no-cache-dir meson virtualenv \
 \
 \
-    && mkdir -p $MINGW && mkdir -p $SRC && cd $SRC \
+    && mkdir -p $SRC $BUILDROOT $MINGW && cd $SRC \
     && curl -L -O https://ftp.gnu.org/gnu/gcc/gcc-$GCC_VER/gcc-$GCC_VER.tar.xz \
     && curl -L -O https://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VER.tar.xz \
     && curl -L -O https://ftp.gnu.org/gnu/mpfr/mpfr-$MPFR_VER.tar.xz \
@@ -68,6 +78,9 @@ unset BASH_ENV PROMPT_COMMAND ENV" > /usr/bin/scl_enable_centos7 \
     && curl -L -O https://ftp.gnu.org/gnu/mpc/mpc-$MPC_VER.tar.gz \
     && curl -L -O https://distfiles.macports.org/isl/isl-$ISL_VER.tar.bz2 \
     && curl -L -o mingw-w64-$MINGW_VER.tar.gz https://github.com/mirror/mingw-w64/archive/v$MINGW_VER.tar.gz \
+    && curl -L -O https://github.com/Kitware/CMake/releases/download/v$CMAKE_VER/cmake-$CMAKE_VER.tar.gz \
+    && curl -L -o ruby-install-$RUBY_INSTALL_VER.tar.gz https://github.com/postmodern/ruby-install/archive/v$RUBY_INSTALL_VER.tar.gz \
+    && curl -L -o chruby-$CHRUBY_VER.tar.gz https://github.com/postmodern/chruby/archive/v$CHRUBY_VER.tar.gz \
 \
     && tar Jxvf gcc-$GCC_VER.tar.xz \
     && tar Jxvf binutils-$BINUTILS_VER.tar.xz \
@@ -76,6 +89,9 @@ unset BASH_ENV PROMPT_COMMAND ENV" > /usr/bin/scl_enable_centos7 \
     && tar zxvf mpc-$MPC_VER.tar.gz \
     && tar jxvf isl-$ISL_VER.tar.bz2 \
     && tar zxvf mingw-w64-$MINGW_VER.tar.gz \
+    && tar zxvf cmake-$CMAKE_VER.tar.gz \
+    && tar zxvf ruby-install-$RUBY_INSTALL_VER.tar.gz \
+    && tar zxvf chruby-$CHRUBY_VER.tar.gz \
 \
     && mv mpfr-$MPFR_VER gcc-$GCC_VER/mpfr \
     && mv gmp-$GMP_VER gcc-$GCC_VER/gmp \
@@ -128,8 +144,14 @@ unset BASH_ENV PROMPT_COMMAND ENV" > /usr/bin/scl_enable_centos7 \
     && cd $BUILDROOT/gcc \
     && make -j `nproc` && make install \
 \
-    && cd $BUILDROOT && rm -rf $BUILDROOT/binutils $BUILDROOT/headers $BUILDROOT/gcc $BUILDROOT/mingw $BUILDROOT/mingw-wpthreads \
-    && rm -rf $SRC \
+    && mkdir -p $BUILDROOT/cmake && cd $BUILDROOT/cmake \
+    && $SRC/cmake-$CMAKE_VER/bootstrap --prefix=/opt/rh/llvm-toolset-$RH_LTS_VER/root/usr --mandir=share/man --sphinx-man -- -DBUILD_CursesDialog=True \
+    && make && make install \
+\
+    && cd $SRC/ruby-install-$RUBY_INSTALL_VER && make install \
+    && cd $SRC/chruby-$CHRUBY_VER && make install \
+\
+    && cd / && rm -rf $SRC $BUILDROOT \
     && strip -s $MINGW/bin/$TARGET-* && strip -s $MINGW/$TARGET/lib/*.dll && strip -s $MINGW/$TARGET/lib32/*.dll \
     && cd $MINGW/libexec/gcc/$TARGET/$GCC_VER && strip -s cc1 cc1plus collect2 lto-wrapper lto1 \
 \
