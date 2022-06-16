@@ -148,8 +148,9 @@ unset BASH_ENV PROMPT_COMMAND ENV" > /usr/bin/scl_enable_centos7 \
     && $SRC/cmake-$CMAKE_VER/bootstrap --prefix=/opt/rh/llvm-toolset-$RH_LTS_VER/root/usr --mandir=share/man --sphinx-man -- -DBUILD_CursesDialog=True \
     && make && make install \
 \
-    && cd $SRC/ruby-install-$RUBY_INSTALL_VER && make install \
-    && cd $SRC/chruby-$CHRUBY_VER && make install \
+    && cd $SRC/ruby-install-$RUBY_INSTALL_VER && make PREFIX=/usr/local DESTDIR= install \
+    && cd $SRC/chruby-$CHRUBY_VER && make PREFIX=/usr/local install \
+    && echo -e "source /usr/local/share/chruby/chruby.sh" > /etc/profile.d/chruby.sh \
 \
     && cd / && rm -rf $SRC $BUILDROOT \
     && strip -s $MINGW/bin/$TARGET-* && strip -s $MINGW/$TARGET/lib/*.dll && strip -s $MINGW/$TARGET/lib32/*.dll \
