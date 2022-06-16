@@ -181,7 +181,7 @@ RUN sed -i 's/^tsflags=nodocs$/# tsflags=nodocs/' /etc/yum.conf \
 \
     && cd $SRC/ruby-install-$RUBY_INSTALL_VER && make PREFIX=/usr/local DESTDIR= install \
     && cd $SRC/chruby-$CHRUBY_VER && make PREFIX=/usr/local install \
-    && echo -e "source /usr/local/share/chruby/chruby.sh\nsource /usr/local/share/chruby/auto.sh" > /etc/profile.d/chruby.sh \
+    && echo -e "source /usr/local/share/chruby/chruby.sh" > /etc/profile.d/chruby.sh \
 \
     && cd / && rm -rf $SRC $BUILDROOT \
     && strip -s $MINGW/bin/$TARGET-* && strip -s $MINGW/$TARGET/lib/*.dll && strip -s $MINGW/$TARGET/lib32/*.dll \
