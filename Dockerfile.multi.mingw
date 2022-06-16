@@ -150,7 +150,7 @@ unset BASH_ENV PROMPT_COMMAND ENV" > /usr/bin/scl_enable_centos7 \
 \
     && cd $SRC/ruby-install-$RUBY_INSTALL_VER && make PREFIX=/usr/local DESTDIR= install \
     && cd $SRC/chruby-$CHRUBY_VER && make PREFIX=/usr/local install \
-    && echo -e "source /usr/local/share/chruby/chruby.sh" > /etc/profile.d/chruby.sh \
+    && echo -e "source /usr/local/share/chruby/chruby.sh\n# source /usr/local/share/chruby/auto.sh" > /etc/profile.d/chruby.sh \
 \
     && cd / && rm -rf $SRC $BUILDROOT \
     && strip -s $MINGW/bin/$TARGET-* && strip -s $MINGW/$TARGET/lib/*.dll && strip -s $MINGW/$TARGET/lib32/*.dll \
