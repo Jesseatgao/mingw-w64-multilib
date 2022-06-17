@@ -15,8 +15,8 @@ MinGW-w64: cross compile multilib toolchain docker image based on centos7 target
 		* Languages: C, C++
 		* Thread support: C++ 11 Thread, POSIX Threads (winpthreads)
 	* Native Compilation Toolchain
-		* `GCC`: 10.2.1
-		* `Binutils`: 2.35
+		* `GCC`: 9.3.1
+		* `Binutils`: 2.32
 		* Thread model: `posix`
 		* Languages: C,C++,FORTRAN
 	* Build System
@@ -42,8 +42,8 @@ MinGW-w64: cross compile multilib toolchain docker image based on centos7 target
 		* Languages: C, C++
 		* Thread support: C++ 11 Thread ([mingw-std-threads](https://github.com/meganz/mingw-std-threads)), POSIX Threads ([pthreads4w](https://sourceforge.net/projects/pthreads4w), aka [pthreads-w32](https://www.sourceware.org/pthreads-win32))
 	* Native Compilation Toolchain
-		* `GCC`: 10.2.1
-		* `Binutils`: 2.35
+		* `GCC`: 9.3.1
+		* `Binutils`: 2.32
 		* Thread model: `posix`
 		* Languages: C,C++,FORTRAN
 	* Build System
