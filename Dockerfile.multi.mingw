@@ -20,7 +20,7 @@ ARG LDFLAGS=
 ENV PATH $PREFIX/bin:$PATH
 
 ARG GCC_VER=10.3.0
-ARG BINUTILS_VER=2.38
+ARG BINUTILS_VER=2.37
 ARG MPFR_VER=4.1.0
 ARG GMP_VER=6.2.1
 ARG MPC_VER=1.2.1
@@ -30,8 +30,8 @@ ARG MINGW_VER=10.0.0
 ARG PTHREADS4W_VER=3.0.0
 
 # Red Hat Developer Toolset
-ARG RH_DTS_VER=9
-ARG RH_DTS_GCC_VER=9.3.1-2.2
+ARG RH_DTS_VER=10
+ARG RH_DTS_GCC_VER=10.2.1-2.1
 
 # Clang and LLVM Toolset
 ARG RH_LTS_VER=7.0
@@ -81,8 +81,9 @@ RUN sed -i 's/^tsflags=nodocs$/# tsflags=nodocs/' /etc/yum.conf \
     && curl -L -O https://github.com/Kitware/CMake/releases/download/v$CMAKE_VER/cmake-$CMAKE_VER.tar.gz \
     && curl -L -o ruby-install-$RUBY_INSTALL_VER.tar.gz https://github.com/postmodern/ruby-install/archive/v$RUBY_INSTALL_VER.tar.gz \
     && curl -L -o chruby-$CHRUBY_VER.tar.gz https://github.com/postmodern/chruby/archive/v$CHRUBY_VER.tar.gz \
+    && curl -L -O https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-gcc/0020-libgomp-Don-t-hard-code-MS-printf-attributes.patch \
 \
-    && tar Jxvf gcc-$GCC_VER.tar.xz \
+    && tar Jxvf gcc-$GCC_VER.tar.xz && patch -p1 -d $SRC/gcc-$GCC_VER < $SRC/0020-libgomp-Don-t-hard-code-MS-printf-attributes.patch \
     && tar Jxvf binutils-$BINUTILS_VER.tar.xz \
     && tar Jxvf mpfr-$MPFR_VER.tar.xz \
     && tar Jxvf gmp-$GMP_VER.tar.xz \
