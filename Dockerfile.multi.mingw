@@ -65,7 +65,7 @@ RUN sed -i 's/^tsflags=nodocs$/# tsflags=nodocs/' /etc/yum.conf \
     && echo -e "source scl_source enable devtoolset-${RH_DTS_VER}\nsource scl_source enable llvm-toolset-${RH_LTS_VER}\nsource scl_source enable rh-ruby${RH_RUBY_VER}\nunset BASH_ENV PROMPT_COMMAND ENV" > /usr/bin/scl_enable_centos7 \
     && echo -e "PATH=$MINGW/bin:\$PATH\nPATH=\$(echo -n \$PATH | awk -v RS=: -v FS=: '!(\$1 in a) {a[\$1]; if (length(a) > 1) printf \":\"; printf \$1}')\nexport PATH=\$PATH"  >> /usr/bin/scl_enable_centos7 \
     && chmod +x /usr/bin/scl_enable_centos7 && source /usr/bin/scl_enable_centos7 \
-    && gem install rake && pip3 install --no-cache-dir -U pip && pip install --no-cache-dir meson virtualenv \
+    && gem install rake && pip3 install --no-cache-dir -U pip && pip install --no-cache-dir meson ninja virtualenv \
 \
 \
     && mkdir -p $SRC $BUILDROOT $MINGW && cd $SRC \
