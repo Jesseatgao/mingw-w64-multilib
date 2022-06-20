@@ -9,18 +9,18 @@ MinGW-w64: cross compile multilib toolchain docker image based on centos7 target
 		* Centos 7
 	* Cross Compilation Toolchain
 		* `MinGW-w64`: 10.0.0
-		* `GCC`: 11.3.0
-		* `Binutils`: 2.38
+		* `GCC`: 10.3.0
+		* `Binutils`: 2.37
 		* Thread model: `posix`
 		* Languages: C, C++
 		* Thread support: C++ 11 Thread, POSIX Threads (winpthreads)
 	* Native Compilation Toolchain
-		* `GCC`: 11.2.1
-		* `Binutils`: 2.36
+		* `GCC`: 10.2.1
+		* `Binutils`: 2.35
 		* Thread model: `posix`
 		* Languages: C,C++,FORTRAN
 	* Build System
-		* `make`: GNU Make 4.3
+		* `make`: GNU Make 4.2.1
 		* `cmake`: 3.23.2
 		* `meson`: 0.61.5
 		* `rake`: Ruby Make 13.0.6 (Ruby 2.6)
@@ -36,18 +36,18 @@ MinGW-w64: cross compile multilib toolchain docker image based on centos7 target
 		* Centos 7
 	* Cross Compilation Toolchain
 		* `MinGW-w64`: 10.0.0
-		* `GCC`: 11.3.0
-		* `Binutils`: 2.38
+		* `GCC`: 10.3.0
+		* `Binutils`: 2.37
 		* Thread model: `Win32`
 		* Languages: C, C++
 		* Thread support: C++ 11 Thread ([mingw-std-threads](https://github.com/meganz/mingw-std-threads)), POSIX Threads ([pthreads4w](https://sourceforge.net/projects/pthreads4w), aka [pthreads-w32](https://www.sourceware.org/pthreads-win32))
 	* Native Compilation Toolchain
-		* `GCC`: 11.2.1
-		* `Binutils`: 2.36
+		* `GCC`: 10.2.1
+		* `Binutils`: 2.35
 		* Thread model: `posix`
 		* Languages: C,C++,FORTRAN
 	* Build System
-		* `make`: GNU Make 4.3
+		* `make`: GNU Make 4.2.1
 		* `cmake`: 3.23.2
 		* `meson`: 0.61.5
 		* `rake`: Ruby Make 13.0.6 (Ruby 2.6)
@@ -66,9 +66,9 @@ MinGW-w64: cross compile multilib toolchain docker image based on centos7 target
     * [Cross compile common devel packages(header files and libs)](https://github.com/Jesseatgao/mingw-w64-libs)
     * [Cross compile MKVToolNix (mkvmerge)](https://github.com/Jesseatgao/MKVToolNix-static-builds)
 * working with WSL:
-1. Create a temporary container from an image, say, cgdoc/mingw-w64-multilib:win32-v1.4
+1. Create a temporary container from an image, say, cgdoc/mingw-w64-multilib:posix-v1.4
 ```shell
-docker create --name centos7-extended cgdoc/mingw-w64-multilib:win32-v1.4
+docker create --name centos7-extended cgdoc/mingw-w64-multilib:posix-v1.4
 ```
 2. Export the container as a tar archive
 ```shell
