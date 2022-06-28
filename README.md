@@ -5,64 +5,64 @@ MinGW-w64: cross compile multilib toolchain docker image based on centos7 target
 * `cgdoc/mingw-w64-multilib:posix-v1.4`
     * Source
         * [Dockerfile](https://github.com/Jesseatgao/mingw-w64-multilib/releases/tag/posix-v1.4)
-	* Base Image
-		* Centos 7
-	* Cross Compilation Toolchain
-		* `MinGW-w64`: 10.0.0
-		* `GCC`: 10.3.0
-		* `Binutils`: 2.37
-		* Thread model: `posix`
-		* Languages: C, C++
-		* Thread support: C++ 11 Thread, POSIX Threads (winpthreads)
-	* Native Compilation Toolchain
-		* `GCC`: 10.2.1
-		* `Binutils`: 2.35
-		* Thread model: `posix`
-		* Languages: C,C++,FORTRAN
-	* Build System
-		* `make`: GNU Make 4.2.1
-		* `cmake`: 3.23.2
-		* `meson`: 0.61.5
-		* `rake`: Ruby Make 13.0.6 (Ruby 2.6)
-	* Repos
-		* CentOS 7 Base
-		* CentOS 7 SCL
-		* EPEL 7
+    * Base Image
+        * Centos 7
+    * Cross Compilation Toolchain
+        * `MinGW-w64`: 10.0.0
+        * `GCC`: 10.3.0
+        * `Binutils`: 2.37
+        * Thread model: `posix`
+        * Languages: C, C++
+        * Thread support: C++ 11 Thread, POSIX Threads (winpthreads)
+    * Native Compilation Toolchain
+        * `GCC`: 10.2.1
+        * `Binutils`: 2.35
+        * Thread model: `posix`
+        * Languages: C,C++,FORTRAN
+    * Build System
+        * `make`: GNU Make 4.2.1
+        * `cmake`: 3.23.2
+        * `meson`: 0.61.5
+        * `rake`: Ruby Make 13.0.6 (Ruby 2.6)
+    * Repos
+        * CentOS 7 Base
+        * CentOS 7 SCL
+        * EPEL 7
 
 * `cgdoc/mingw-w64-multilib:win32-v1.4`
     * Source
         * [Dockerfile](https://github.com/Jesseatgao/mingw-w64-multilib/releases/tag/win32-v1.4)
-	* Base Image
-		* Centos 7
-	* Cross Compilation Toolchain
-		* `MinGW-w64`: 10.0.0
-		* `GCC`: 10.3.0
-		* `Binutils`: 2.37
-		* Thread model: `Win32`
-		* Languages: C, C++
-		* Thread support: C++ 11 Thread ([mingw-std-threads](https://github.com/meganz/mingw-std-threads)), POSIX Threads ([pthreads4w](https://sourceforge.net/projects/pthreads4w), aka [pthreads-w32](https://www.sourceware.org/pthreads-win32))
-	* Native Compilation Toolchain
-		* `GCC`: 10.2.1
-		* `Binutils`: 2.35
-		* Thread model: `posix`
-		* Languages: C,C++,FORTRAN
-	* Build System
-		* `make`: GNU Make 4.2.1
-		* `cmake`: 3.23.2
-		* `meson`: 0.61.5
-		* `rake`: Ruby Make 13.0.6 (Ruby 2.6)
-	* Repos
-		* CentOS 7 Base
-		* CentOS 7 SCL
-		* EPEL 7
+    * Base Image
+        * Centos 7
+    * Cross Compilation Toolchain
+        * `MinGW-w64`: 10.0.0
+        * `GCC`: 10.3.0
+        * `Binutils`: 2.37
+        * Thread model: `Win32`
+        * Languages: C, C++
+        * Thread support: C++ 11 Thread ([mingw-std-threads](https://github.com/meganz/mingw-std-threads)), POSIX Threads ([pthreads4w](https://sourceforge.net/projects/pthreads4w), aka [pthreads-w32](https://www.sourceware.org/pthreads-win32))
+    * Native Compilation Toolchain
+        * `GCC`: 10.2.1
+        * `Binutils`: 2.35
+        * Thread model: `posix`
+        * Languages: C,C++,FORTRAN
+    * Build System
+        * `make`: GNU Make 4.2.1
+        * `cmake`: 3.23.2
+        * `meson`: 0.61.5
+        * `rake`: Ruby Make 13.0.6 (Ruby 2.6)
+    * Repos
+        * CentOS 7 Base
+        * CentOS 7 SCL
+        * EPEL 7
 
 ## Usage
 * For cross-compiling win32 target: see for example
-    * [Cross compile Aria2 i686 on CentOS 7](https://github.com/Jesseatgao/aria2-patched-static-build/blob/master/Dockerfile.i686.mingw)
+    * [Cross compile Aria2 i686 on CentOS 7](https://github.com/Jesseatgao/aria2-patched-static-build/blob/master/Dockerfile.i686.x86_64.mingw)
     * [Cross compile common devel packages(header files and libs)](https://github.com/Jesseatgao/mingw-w64-libs)
     * [Cross compile MKVToolNix (mkvmerge)](https://github.com/Jesseatgao/MKVToolNix-static-builds)
 * cross-compiling win64 target: see for example
-    * [Cross compile Aria2 x86_64 on CentOS 7](https://github.com/Jesseatgao/aria2-patched-static-build/blob/master/Dockerfile.x86_64.mingw)
+    * [Cross compile Aria2 x86_64 on CentOS 7](https://github.com/Jesseatgao/aria2-patched-static-build/blob/master/Dockerfile.i686.x86_64.mingw)
     * [Cross compile common devel packages(header files and libs)](https://github.com/Jesseatgao/mingw-w64-libs)
     * [Cross compile MKVToolNix (mkvmerge)](https://github.com/Jesseatgao/MKVToolNix-static-builds)
 * working with WSL:
