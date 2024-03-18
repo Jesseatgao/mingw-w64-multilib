@@ -87,8 +87,3 @@ del /f centos7-extended.tar
 ```shell
 wsl -d centos7-extended
 ```
-
-## Donation
-    If you like the project, please support it by donation
-    [![PayPal donate button](https://img.shields.io/badge/paypal-donate-yellow.svg)](
-    https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=changxigao@gmail.com&item_name=Donation%20in%20support&currency_code=USD)
