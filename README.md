@@ -2,9 +2,9 @@
 MinGW-w64: cross compile multilib toolchain docker image based on centos7 targetting win64 and win32
 
 ## Docker Images with Tags
-* `cgdoc/mingw-w64-multilib:posix-v1.4`
+* `cgdoc/mingw-w64-multilib:posix-v1.5`
     * Source
-        * [Dockerfile](https://github.com/Jesseatgao/mingw-w64-multilib/releases/tag/posix-v1.4)
+        * [Dockerfile](https://github.com/Jesseatgao/mingw-w64-multilib/releases/tag/posix-v1.5)
     * Base Image
         * Centos 7
     * Cross Compilation Toolchain
@@ -29,9 +29,9 @@ MinGW-w64: cross compile multilib toolchain docker image based on centos7 target
         * CentOS 7 SCL
         * EPEL 7
 
-* `cgdoc/mingw-w64-multilib:win32-v1.4`
+* `cgdoc/mingw-w64-multilib:win32-v1.5`
     * Source
-        * [Dockerfile](https://github.com/Jesseatgao/mingw-w64-multilib/releases/tag/win32-v1.4)
+        * [Dockerfile](https://github.com/Jesseatgao/mingw-w64-multilib/releases/tag/win32-v1.5)
     * Base Image
         * Centos 7
     * Cross Compilation Toolchain
@@ -66,9 +66,9 @@ MinGW-w64: cross compile multilib toolchain docker image based on centos7 target
     * [Cross compile common devel packages(header files and libs)](https://github.com/Jesseatgao/mingw-w64-libs)
     * [Cross compile MKVToolNix (mkvmerge)](https://github.com/Jesseatgao/MKVToolNix-static-builds)
 * working with WSL:
-1. Create a temporary container from an image, say, cgdoc/mingw-w64-multilib:posix-v1.4
+1. Create a temporary container from an image, say, cgdoc/mingw-w64-multilib:posix-v1.5
 ```shell
-docker create --name centos7-extended cgdoc/mingw-w64-multilib:posix-v1.4
+docker create --name centos7-extended cgdoc/mingw-w64-multilib:posix-v1.5
 ```
 2. Export the container as a tar archive
 ```shell
