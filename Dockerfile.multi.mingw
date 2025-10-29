@@ -38,6 +38,8 @@ ARG RH_LTS_VER=7.0
 # override the old `cmake` in the LLVM Toolset
 ARG CMAKE_VER=3.23.2
 
+ARG PKG_CONFIG_VER=0.29.2
+
 ARG RH_RUBY_VER=26
 ARG RUBY_INSTALL_VER=0.8.3
 ARG CHRUBY_VER=0.3.9
@@ -49,17 +51,17 @@ ARG NONROOT_GRP=$NONROOT_USER
 ARG NONROOT_GID=$NONROOT_UID
 
 
-RUN    sed -i 's|^#\? \?baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* && sed -i 's/^mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* \
+RUN    sed -i 's;^#\? \?baseurl=http://\(mirror.centos.org\|vault.centos.org\);baseurl=https://vault.centos.org;g' /etc/yum.repos.d/CentOS-* && sed -i 's/^mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* \
     && sed -i 's/^tsflags=nodocs$/# tsflags=nodocs/' /etc/yum.conf && yum -y reinstall "*" \
     && yum install -y centos-release-scl epel-release \
-    && sed -i 's|^#\? \?baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* && sed -i 's/^mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* \
+    && sed -i 's;^#\? \?baseurl=http://\(mirror.centos.org\|vault.centos.org\);baseurl=https://vault.centos.org;g' /etc/yum.repos.d/CentOS-* && sed -i 's/^mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* \
 \
     && yum makecache && yum update -y \
     && yum install -y devtoolset-${RH_DTS_VER}-gcc-c++-${RH_DTS_GCC_VER}.el7 devtoolset-${RH_DTS_VER}-make bison flex gperf patch autoconf automake \
         libtool gettext-devel bzip2 unzip file texinfo glibc-devel glibc-devel.i686 llvm-toolset-${RH_LTS_VER}-cmake rh-ruby${RH_RUBY_VER} python3 sudo wget man man-pages \
         glibc-static.i686 glibc-static.x86_64 \
 \
-        openssl-devel python-sphinx ncurses-devel \
+        openssl-devel python-sphinx ncurses-devel glib2-devel \
 \
     && yum localinstall -y https://yum.oracle.com/repo/OracleLinux/OL7/SoftwareCollections/x86_64/getPackage/devtoolset-${RH_DTS_VER}-libstdc++-devel-${RH_DTS_GCC_VER}.el7.i686.rpm \
     && yum clean all \
@@ -81,6 +83,7 @@ RUN    sed -i 's|^#\? \?baseurl=http://mirror.centos.org|baseurl=http://vault.ce
     && curl -L -O https://sourceforge.net/projects/pthreads4w/files/pthreads4w-code-v$PTHREADS4W_VER.zip \
     && curl -L -o mingw-std-threads-master.zip https://github.com/meganz/mingw-std-threads/archive/master.zip \
     && curl -L -O https://github.com/Kitware/CMake/releases/download/v$CMAKE_VER/cmake-$CMAKE_VER.tar.gz \
+    && curl -L -O https://pkgconfig.freedesktop.org/releases/pkg-config-${PKG_CONFIG_VER}.tar.gz \
     && curl -L -o ruby-install-$RUBY_INSTALL_VER.tar.gz https://github.com/postmodern/ruby-install/archive/v$RUBY_INSTALL_VER.tar.gz \
     && curl -L -o chruby-$CHRUBY_VER.tar.gz https://github.com/postmodern/chruby/archive/v$CHRUBY_VER.tar.gz \
     && curl -L -O https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-gcc/0020-libgomp-Don-t-hard-code-MS-printf-attributes.patch \
@@ -95,6 +98,7 @@ RUN    sed -i 's|^#\? \?baseurl=http://mirror.centos.org|baseurl=http://vault.ce
     && mkdir pthreads4w && unzip -d pthreads4w pthreads4w-code-v$PTHREADS4W_VER.zip && mv pthreads4w/pthreads4w-code*/* pthreads4w/ \
     && unzip mingw-std-threads-master.zip \
     && tar zxvf cmake-$CMAKE_VER.tar.gz \
+    && tar zxvf pkg-config-${PKG_CONFIG_VER}.tar.gz \
     && tar zxvf ruby-install-$RUBY_INSTALL_VER.tar.gz \
     && tar zxvf chruby-$CHRUBY_VER.tar.gz \
 \
@@ -180,6 +184,10 @@ RUN    sed -i 's|^#\? \?baseurl=http://mirror.centos.org|baseurl=http://vault.ce
 \
     && mkdir -p $BUILDROOT/cmake && cd $BUILDROOT/cmake \
     && $SRC/cmake-$CMAKE_VER/bootstrap --prefix=/opt/rh/llvm-toolset-$RH_LTS_VER/root/usr --mandir=share/man --sphinx-man -- -DBUILD_CursesDialog=True \
+    && make && make install \
+\
+    && mkdir -p $BUILDROOT/pkg-config && cd $BUILDROOT/pkg-config \
+    && $SRC/pkg-config-${PKG_CONFIG_VER}/configure --prefix=/usr --disable-host-tool \
     && make && make install \
 \
     && cd $SRC/ruby-install-$RUBY_INSTALL_VER && make PREFIX=/usr/local DESTDIR= install \
