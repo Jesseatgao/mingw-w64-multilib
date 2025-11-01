@@ -82,7 +82,7 @@ RUN    sed -i 's;^#\? \?baseurl=http://\(mirror.centos.org\|vault.centos.org\);b
     && curl -L -O https://ftp.gnu.org/gnu/mpc/mpc-$MPC_VER.tar.gz \
     && curl -L -O https://distfiles.macports.org/isl/isl-$ISL_VER.tar.bz2 \
     && curl -L -o mingw-w64-$MINGW_VER.tar.gz https://github.com/mirror/mingw-w64/archive/v$MINGW_VER.tar.gz \
-    && curl -L -O https://sourceforge.net/projects/pthreads4w/files/pthreads4w-code-v$PTHREADS4W_VER.zip \
+    && curl -L -o pthreads4w-v$PTHREADS4W_VER.zip https://github.com/GerHobbelt/pthread-win32/archive/refs/tags/Version-$(echo $PTHREADS4W_VER|sed 's/\./-/g')-release.zip \
     && curl -L -o mingw-std-threads-master.zip https://github.com/meganz/mingw-std-threads/archive/master.zip \
     && curl -L -O https://github.com/Kitware/CMake/releases/download/v$CMAKE_VER/cmake-$CMAKE_VER.tar.gz \
     && curl -L -O https://pkgconfig.freedesktop.org/releases/pkg-config-${PKG_CONFIG_VER}.tar.gz \
@@ -97,7 +97,7 @@ RUN    sed -i 's;^#\? \?baseurl=http://\(mirror.centos.org\|vault.centos.org\);b
     && tar zxvf mpc-$MPC_VER.tar.gz \
     && tar jxvf isl-$ISL_VER.tar.bz2 \
     && tar zxvf mingw-w64-$MINGW_VER.tar.gz \
-    && mkdir pthreads4w && unzip -d pthreads4w pthreads4w-code-v$PTHREADS4W_VER.zip && mv pthreads4w/pthreads4w-code*/* pthreads4w/ \
+    && mkdir pthreads4w && unzip -d pthreads4w pthreads4w-v$PTHREADS4W_VER.zip && mv pthreads4w/pthread-win32-*/* pthreads4w/ \
     && unzip mingw-std-threads-master.zip \
     && tar zxvf cmake-$CMAKE_VER.tar.gz \
     && tar zxvf pkg-config-${PKG_CONFIG_VER}.tar.gz \
