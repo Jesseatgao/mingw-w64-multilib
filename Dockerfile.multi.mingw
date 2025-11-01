@@ -34,7 +34,7 @@ ARG RH_DTS_VER=10
 ARG RH_DTS_GCC_VER=10.2.1-11.2.0.1
 
 # Clang and LLVM Toolset
-ARG RH_LTS_VER=7.0
+ARG RH_LTS_VER=7
 # override the old `cmake` in the LLVM Toolset
 ARG CMAKE_VER=3.23.2
 
@@ -50,13 +50,14 @@ ARG NONROOT_UID=1000
 ARG NONROOT_GRP=$NONROOT_USER
 ARG NONROOT_GID=$NONROOT_UID
 
+ADD public-yum-ol7.repo /opt/
+
 
 RUN    sed -i 's;^#\? \?baseurl=http://\(mirror.centos.org\|vault.centos.org\);baseurl=https://vault.centos.org;g' /etc/yum.repos.d/CentOS-* && sed -i 's/^mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* \
     && sed -i 's/^tsflags=nodocs$/# tsflags=nodocs/' /etc/yum.conf && yum -y reinstall "*" \
 \
     && curl -o /etc/pki/rpm-gpg/RPM-GPG-KEY-oracle https://yum.oracle.com/RPM-GPG-KEY-oracle-ol7 && gpg --import /etc/pki/rpm-gpg/RPM-GPG-KEY-oracle && cp /etc/pki/rpm-gpg/RPM-GPG-KEY-oracle /etc/pki/rpm-gpg/RPM-GPG-KEY \
-    && curl -o /etc/yum.repos.d/public-yum-ol7.repo https://yum.oracle.com/public-yum-ol7.repo && yum -y swap centos-release redhat-release-server && yum -y swap centos-logos oracle-logos \
-    && yum -y install oraclelinux-release-el7 && /usr/bin/ol_yum_configure.sh && yum -y install oracle-softwarecollection-release-el7 oraclelinux-developer-release-el7 oracle-epel-release-el7 && yum-config-manager --disable ol7_UEKR* \
+    && mv /opt/public-yum-ol7.repo /etc/yum.repos.d/ && yum -y swap centos-release redhat-release-server && yum -y swap centos-logos oracle-logos \
 \
     && yum makecache && yum -y update \
     && yum -y install devtoolset-${RH_DTS_VER}-gcc-c++-${RH_DTS_GCC_VER}.el7 devtoolset-${RH_DTS_VER}-libstdc++-devel-${RH_DTS_GCC_VER}.el7.i686 devtoolset-${RH_DTS_VER}-make bison flex gperf patch autoconf automake \
