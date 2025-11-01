@@ -31,7 +31,7 @@ ARG PTHREADS4W_VER=3.0.0
 
 # Red Hat Developer Toolset
 ARG RH_DTS_VER=10
-ARG RH_DTS_GCC_VER=10.2.1-2.1
+ARG RH_DTS_GCC_VER=10.2.1-11.2.0.1
 
 # Clang and LLVM Toolset
 ARG RH_LTS_VER=7.0
@@ -41,7 +41,7 @@ ARG CMAKE_VER=3.23.2
 ARG PKG_CONFIG_VER=0.29.2
 
 ARG RH_RUBY_VER=26
-ARG RUBY_INSTALL_VER=0.8.3
+ARG RUBY_INSTALL_VER=0.10.1
 ARG CHRUBY_VER=0.3.9
 
 # non-root, nopasswd sudoer in *wheel* group
@@ -53,17 +53,18 @@ ARG NONROOT_GID=$NONROOT_UID
 
 RUN    sed -i 's;^#\? \?baseurl=http://\(mirror.centos.org\|vault.centos.org\);baseurl=https://vault.centos.org;g' /etc/yum.repos.d/CentOS-* && sed -i 's/^mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* \
     && sed -i 's/^tsflags=nodocs$/# tsflags=nodocs/' /etc/yum.conf && yum -y reinstall "*" \
-    && yum install -y centos-release-scl epel-release \
-    && sed -i 's;^#\? \?baseurl=http://\(mirror.centos.org\|vault.centos.org\);baseurl=https://vault.centos.org;g' /etc/yum.repos.d/CentOS-* && sed -i 's/^mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* \
 \
-    && yum makecache && yum update -y \
-    && yum install -y devtoolset-${RH_DTS_VER}-gcc-c++-${RH_DTS_GCC_VER}.el7 devtoolset-${RH_DTS_VER}-make bison flex gperf patch autoconf automake \
+    && curl -o /etc/pki/rpm-gpg/RPM-GPG-KEY-oracle https://yum.oracle.com/RPM-GPG-KEY-oracle-ol7 && gpg --import /etc/pki/rpm-gpg/RPM-GPG-KEY-oracle && cp /etc/pki/rpm-gpg/RPM-GPG-KEY-oracle /etc/pki/rpm-gpg/RPM-GPG-KEY \
+    && curl -o /etc/yum.repos.d/public-yum-ol7.repo https://yum.oracle.com/public-yum-ol7.repo && yum -y swap centos-release redhat-release-server && yum -y swap centos-logos oracle-logos \
+    && yum -y install oraclelinux-release-el7 && /usr/bin/ol_yum_configure.sh && yum -y install oracle-softwarecollection-release-el7 oraclelinux-developer-release-el7 oracle-epel-release-el7 && yum-config-manager --disable ol7_UEKR* \
+\
+    && yum makecache && yum -y update \
+    && yum -y install devtoolset-${RH_DTS_VER}-gcc-c++-${RH_DTS_GCC_VER}.el7 devtoolset-${RH_DTS_VER}-libstdc++-devel-${RH_DTS_GCC_VER}.el7.i686 devtoolset-${RH_DTS_VER}-make bison flex gperf patch autoconf automake \
         libtool gettext-devel bzip2 unzip file texinfo glibc-devel glibc-devel.i686 llvm-toolset-${RH_LTS_VER}-cmake rh-ruby${RH_RUBY_VER} python3 sudo wget man man-pages \
         glibc-static.i686 glibc-static.x86_64 \
 \
         openssl-devel python-sphinx ncurses-devel glib2-devel \
 \
-    && yum localinstall -y https://yum.oracle.com/repo/OracleLinux/OL7/SoftwareCollections/x86_64/getPackage/devtoolset-${RH_DTS_VER}-libstdc++-devel-${RH_DTS_GCC_VER}.el7.i686.rpm \
     && yum clean all \
 \
     && echo -e "source scl_source enable devtoolset-${RH_DTS_VER}\nsource scl_source enable llvm-toolset-${RH_LTS_VER}\nsource scl_source enable rh-ruby${RH_RUBY_VER}\nunset BASH_ENV PROMPT_COMMAND ENV" > /usr/bin/scl_enable_centos7 \
