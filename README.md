@@ -2,9 +2,9 @@
 MinGW-w64: cross compile multilib toolchain docker image based on centos7 targetting win64 and win32
 
 ## Docker Images with Tags
-* `cgdoc/mingw-w64-multilib:posix-v1.5`
+* `cgdoc/mingw-w64-multilib:posix-v1.7`
     * Source
-        * [Dockerfile](https://github.com/Jesseatgao/mingw-w64-multilib/releases/tag/posix-v1.5)
+        * [Dockerfile](https://github.com/Jesseatgao/mingw-w64-multilib/releases/tag/posix-v1.7)
     * Base Image
         * Centos 7
     * Cross Compilation Toolchain
@@ -25,13 +25,15 @@ MinGW-w64: cross compile multilib toolchain docker image based on centos7 target
         * `meson`: 0.61.5
         * `rake`: Ruby Make 13.0.6 (Ruby 2.6)
     * Repos
-        * CentOS 7 Base
-        * CentOS 7 SCL
-        * EPEL 7
+        * Oracle Linux 7 Latest
+        * Oracle Linux 7 Optional Latest
+        * Oracle Linux 7 Software Collection Library
+        * Oracle Linux 7 Developer
+        * Oracle Linux 7 Developer EPEL
 
-* `cgdoc/mingw-w64-multilib:win32-v1.5`
+* `cgdoc/mingw-w64-multilib:win32-v1.7`
     * Source
-        * [Dockerfile](https://github.com/Jesseatgao/mingw-w64-multilib/releases/tag/win32-v1.5)
+        * [Dockerfile](https://github.com/Jesseatgao/mingw-w64-multilib/releases/tag/win32-v1.7)
     * Base Image
         * Centos 7
     * Cross Compilation Toolchain
@@ -40,7 +42,7 @@ MinGW-w64: cross compile multilib toolchain docker image based on centos7 target
         * `Binutils`: 2.37
         * Thread model: `Win32`
         * Languages: C, C++
-        * Thread support: C++ 11 Thread ([mingw-std-threads](https://github.com/meganz/mingw-std-threads)), POSIX Threads ([pthreads4w](https://sourceforge.net/projects/pthreads4w), aka [pthreads-w32](https://www.sourceware.org/pthreads-win32))
+        * Thread support: C++ 11 Thread ([mingw-std-threads](https://github.com/meganz/mingw-std-threads)), POSIX Threads ([pthreads4w](https://sourceforge.net/projects/pthreads4w), aka [pthreads-w32](https://github.com/GerHobbelt/pthread-win32))
     * Native Compilation Toolchain
         * `GCC`: 10.2.1
         * `Binutils`: 2.35
@@ -52,9 +54,11 @@ MinGW-w64: cross compile multilib toolchain docker image based on centos7 target
         * `meson`: 0.61.5
         * `rake`: Ruby Make 13.0.6 (Ruby 2.6)
     * Repos
-        * CentOS 7 Base
-        * CentOS 7 SCL
-        * EPEL 7
+        * Oracle Linux 7 Latest
+        * Oracle Linux 7 Optional Latest
+        * Oracle Linux 7 Software Collection Library
+        * Oracle Linux 7 Developer
+        * Oracle Linux 7 Developer EPEL
 
 ## Usage
 * For cross-compiling win32 target: see for example
@@ -66,9 +70,9 @@ MinGW-w64: cross compile multilib toolchain docker image based on centos7 target
     * [Cross compile common devel packages(header files and libs)](https://github.com/Jesseatgao/mingw-w64-libs)
     * [Cross compile MKVToolNix (mkvmerge)](https://github.com/Jesseatgao/MKVToolNix-static-builds)
 * working with WSL:
-1. Create a temporary container from an image, say, cgdoc/mingw-w64-multilib:win32-v1.5
+1. Create a temporary container from an image, say, cgdoc/mingw-w64-multilib:win32-v1.7
 ```shell
-docker create --name centos7-extended cgdoc/mingw-w64-multilib:win32-v1.5
+docker create --name centos7-extended cgdoc/mingw-w64-multilib:win32-v1.7
 ```
 2. Export the container as a tar archive
 ```shell
