@@ -29,7 +29,7 @@ ARG PTHREADS4W_VER=3.0.0
 # Red Hat GCC Toolset
 ARG RH_GTS_VER=
 ARG RH_GTS_GCC_CXX=${RH_GTS_VER:+gcc-toolset-${RH_GTS_VER}-gcc-c++}
-ARG RH_GTS_LIBSTDCXX_DEVEL=$(eval echo ${RH_GTS_VER:+gcc-toolset-${RH_GTS_VER}-libstdc++-devel.\{x86_64,i686\}})
+ARG RH_GTS_LIBSTDCXX_DEVEL=${RH_GTS_VER:+"gcc-toolset-${RH_GTS_VER}-libstdc++-devel.x86_64 gcc-toolset-${RH_GTS_VER}-libstdc++-devel.i686"}
 
 ARG VIRTUALENV_VER=20.21.1
 
