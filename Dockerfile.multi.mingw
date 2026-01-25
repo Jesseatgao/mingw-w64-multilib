@@ -59,8 +59,8 @@ RUN    sed -i 's/^tsflags=nodocs$/# tsflags=nodocs/; s/^assumeyes=True$/assumeye
 \
     && yum makecache && yum -y update \
     && yum -y install gcc-c++ libstdc++-devel.{x86_64,i686} ${RH_GTS_GCC_CXX} ${RH_GTS_LIBSTDCXX_DEVEL} \
-        make bison flex gperf patch autoconf automake libtool gettext-devel bzip2 unzip file texinfo glibc-devel glibc-devel.i686 \
-        cmake ruby python3 pip sudo wget man man-pages glibc-static.{x86_64,i686}  openssl-devel ncurses-devel glib2-devel \
+        gdb make bison flex gperf patch autoconf automake libtool gettext-devel bzip2 unzip file texinfo glibc-devel glibc-devel.i686 \
+        git vim cmake ruby python3 pip sudo wget man man-pages glibc-static.{x86_64,i686}  openssl-devel ncurses-devel glib2-devel \
 \
     && yum clean all \
 \
