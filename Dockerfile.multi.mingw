@@ -74,7 +74,7 @@ RUN    sed -i 's/^tsflags=nodocs$/# tsflags=nodocs/; s/^assumeyes=True$/assumeye
     && curl -L -O https://sourceware.org/pub/gcc/releases/gcc-$GCC_VER/gcc-$GCC_VER.tar.xz \
     && curl -L -O https://sourceware.org/pub/binutils/releases/binutils-$BINUTILS_VER.tar.xz \
     && curl -L -O https://www.mpfr.org/mpfr-$MPFR_VER/mpfr-$MPFR_VER.tar.xz \
-    && curl -L -O https://gmplib.org/download/gmp/gmp-$GMP_VER.tar.xz \
+    && curl -L -O https://toolchains.bootlin.com/downloads/releases/sources/gmp-$GMP_VER/gmp-$GMP_VER.tar.xz \
     && curl -L -O https://www.multiprecision.org/downloads/mpc-$MPC_VER.tar.gz \
     && curl -L -O https://distfiles.macports.org/isl/isl-$ISL_VER.tar.bz2 \
     && curl -L -o mingw-w64-$MINGW_VER.tar.gz https://github.com/mirror/mingw-w64/archive/v$MINGW_VER.tar.gz \
