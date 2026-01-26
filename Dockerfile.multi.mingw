@@ -60,8 +60,9 @@ RUN    sed -i 's/^tsflags=nodocs$/# tsflags=nodocs/; s/^assumeyes=True$/assumeye
     && yum makecache && yum -y update \
     && yum -y install gcc-c++ libstdc++-devel.{x86_64,i686} ${RH_GTS_GCC_CXX} ${RH_GTS_LIBSTDCXX_DEVEL} \
         make bison flex gperf patch autoconf automake libtool gettext-devel bzip2 unzip file texinfo glibc-devel glibc-devel.i686 \
-        cmake ruby python3 pip sudo wget man man-pages glibc-static.{x86_64,i686}  openssl-devel ncurses-devel glib2-devel \
+        cmake ruby python3 pip sudo wget man man-pages glibc-static.{x86_64,i686}  glib2-devel  gdb git vim \
 \
+    && yum clean all \
 \
     && echo -e "# source scl_source enable gcc-toolset-${RH_GTS_VER}\n\nunset BASH_ENV PROMPT_COMMAND ENV" > /usr/bin/scl_enable_ol9 \
     && echo -e "PATH=$MINGW/bin:$PYTHON_APPIMAGE/bin:\$PATH\nPATH=\$(echo -n \$PATH | awk -v RS=: -v FS=: '!(\$1 in a) {a[\$1]; if (length(a) > 1) printf \":\"; printf \$1}')\nexport PATH=\$PATH"  >> /usr/bin/scl_enable_ol9 \
@@ -205,10 +206,6 @@ RUN    sed -i 's/^tsflags=nodocs$/# tsflags=nodocs/; s/^assumeyes=True$/assumeye
     && cd / && rm -rf $SRC $BUILDROOT \
     && strip -s $MINGW/bin/$TARGET-* && strip -s $MINGW/$TARGET/lib/*.dll && strip -s $MINGW/$TARGET/lib32/*.dll \
     && cd $MINGW/libexec/gcc/$TARGET/$GCC_VER && strip -s cc1 cc1plus collect2 lto-wrapper lto1 \
-\
-    && yum -y install gdb git vim \
-\
-    && yum clean all \
 \
     && cd $MINGW/lib/gcc/$TARGET/$GCC_VER && $TARGET-gcc -dumpspecs > specs \
     && sed -i '/\*cpp:/!b; n; s%\(.*\)%\1 -I/opt/mingw32/x86_64-w64-mingw32/include -I/opt/mingw32/i686-w64-mingw32/include -I/opt/mingw32/include%' specs \
