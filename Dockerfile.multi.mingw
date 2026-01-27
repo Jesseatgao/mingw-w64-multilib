@@ -10,7 +10,7 @@ ARG INSTALLROOT=/opt
 ARG SRC=/opt/_src
 ARG BUILDROOT=/opt/_build
 
-ARG MINGW=$INSTALLROOT/mingw32
+ARG MINGW=$INSTALLROOT/mingw-w64
 
 ARG CFLAGS=
 ARG CXXFLAGS=
@@ -207,10 +207,6 @@ RUN    sed -i 's/^tsflags=nodocs$/# tsflags=nodocs/; s/^assumeyes=True$/assumeye
     && strip -s $MINGW/bin/$TARGET-* && strip -s $MINGW/$TARGET/lib/*.dll && strip -s $MINGW/$TARGET/lib32/*.dll \
     && cd $MINGW/libexec/gcc/$TARGET/$GCC_VER && strip -s cc1 cc1plus collect2 lto-wrapper lto1 \
 \
-    && cd $MINGW/lib/gcc/$TARGET/$GCC_VER && $TARGET-gcc -dumpspecs > specs \
-    && sed -i '/\*cpp:/!b; n; s%\(.*\)%\1 -I/opt/mingw32/x86_64-w64-mingw32/include -I/opt/mingw32/i686-w64-mingw32/include -I/opt/mingw32/include%' specs \
-    && sed -i '/\*cc1plus:/!b; n; s%\(.*\)%\1 -I/opt/mingw32/x86_64-w64-mingw32/include -I/opt/mingw32/i686-w64-mingw32/include -I/opt/mingw32/include%' specs \
-    && sed -i '/\*link_libgcc:/!b; n; s%\(.*\)%\1 -L/opt/mingw32/x86_64-w64-mingw32/lib -L/opt/mingw32/i686-w64-mingw32/lib -L/opt/mingw32/lib%' specs \
 \
     && echo -e ". /usr/bin/scl_enable_ol9" >> /etc/profile.d/enable_mingw_scl.sh \
     && sed -i '/^%wheel/!b; s/^/# /; n; n; n; s/^# //' /etc/sudoers \
