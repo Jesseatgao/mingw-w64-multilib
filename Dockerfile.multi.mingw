@@ -1,48 +1,49 @@
 
 # Arch: x86_64
-FROM centos:7
+FROM oraclelinux:9
 
 SHELL ["/bin/bash", "-c"]
 
 ARG BUILD=x86_64-unknown-linux-gnu
 ARG TARGET=x86_64-w64-mingw32
 ARG TARGET_X86=i686-w64-mingw32
-ARG INSTALLROOT=/usr/local
+ARG INSTALLROOT=/opt
 ARG SRC=/opt/_src
 ARG BUILDROOT=/opt/_build
 
-ARG MINGW=$INSTALLROOT/mingw32
-ARG PREFIX=$MINGW
+ARG MINGW=$INSTALLROOT/mingw-w64
 
 ARG CFLAGS=
 ARG CXXFLAGS=
 ARG LDFLAGS=
 
-ENV PATH $PREFIX/bin:$PATH
-
-ARG GCC_VER=10.3.0
-ARG BINUTILS_VER=2.37
-ARG MPFR_VER=4.1.0
+ARG GCC_VER=15.2.0
+ARG BINUTILS_VER=2.46.0
+ARG MPFR_VER=4.2.2
 ARG GMP_VER=6.2.1
-ARG MPC_VER=1.2.1
-ARG ISL_VER=0.24
+ARG MPC_VER=1.3.1
+ARG ISL_VER=0.25
 
-ARG MINGW_VER=10.0.0
+ARG MINGW_VER=13.0.0
 
-# Red Hat Developer Toolset
-ARG RH_DTS_VER=10
-ARG RH_DTS_GCC_VER=10.2.1-11.2.0.1
+# Red Hat GCC Toolset
+ARG RH_GTS_VER=
+ARG RH_GTS_GCC_CXX=${RH_GTS_VER:+gcc-toolset-${RH_GTS_VER}-gcc-c++}
+ARG RH_GTS_LIBSTDCXX_DEVEL=${RH_GTS_VER:+"gcc-toolset-${RH_GTS_VER}-libstdc++-devel.x86_64 gcc-toolset-${RH_GTS_VER}-libstdc++-devel.i686"}
+ARG RH_GTS_GCC_TOOLSET=${RH_GTS_VER:+gcc-toolset-${RH_GTS_VER}}
 
-# Clang and LLVM Toolset
-ARG RH_LTS_VER=7
-# override the old `cmake` in the LLVM Toolset
-ARG CMAKE_VER=3.23.2
+ARG VIRTUALENV_VER=20.21.1
 
 ARG PKG_CONFIG_VER=0.29.2
 
-ARG RH_RUBY_VER=26
 ARG RUBY_INSTALL_VER=0.10.1
 ARG CHRUBY_VER=0.3.9
+
+ARG _PYTHON27=https://github.com/niess/python-appimage/releases/download/python2.7/python2.7.18-cp27-cp27mu-manylinux1_x86_64.AppImage
+ARG _PYTHON36=https://github.com/niess/python-appimage/releases/download/python3.6/python3.6.15-cp36-cp36m-manylinux_2_24_x86_64.AppImage
+ARG _PYTHON37=https://github.com/niess/python-appimage/releases/download/python3.7/python3.7.17-cp37-cp37m-manylinux_2_28_x86_64.AppImage
+ARG PYTHON_APPIMAGES="$_PYTHON27 $_PYTHON36 $_PYTHON37"
+ARG PYTHON_APPIMAGE=$INSTALLROOT/python-appimage
 
 # non-root, nopasswd sudoer in *wheel* group
 ARG NONROOT_USER=centos
@@ -50,43 +51,39 @@ ARG NONROOT_UID=1000
 ARG NONROOT_GRP=$NONROOT_USER
 ARG NONROOT_GID=$NONROOT_UID
 
-ADD public-yum-ol7.repo /opt/
+ENV PATH=$MINGW/bin:$PYTHON_APPIMAGE/bin:$PATH
 
 
-RUN    sed -i 's;^#\? \?baseurl=http://\(mirror.centos.org\|vault.centos.org\);baseurl=https://vault.centos.org;g' /etc/yum.repos.d/CentOS-* && sed -i 's/^mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* \
-    && sed -i 's/^tsflags=nodocs$/# tsflags=nodocs/' /etc/yum.conf && yum -y reinstall "*" \
+RUN    sed -i 's/^tsflags=nodocs$/# tsflags=nodocs/; s/^assumeyes=True$/assumeyes=False/' /etc/dnf/dnf.conf && yum -y reinstall "*" \
 \
-    && curl -o /etc/pki/rpm-gpg/RPM-GPG-KEY-oracle https://yum.oracle.com/RPM-GPG-KEY-oracle-ol7 && gpg --import /etc/pki/rpm-gpg/RPM-GPG-KEY-oracle && cp /etc/pki/rpm-gpg/RPM-GPG-KEY-oracle /etc/pki/rpm-gpg/RPM-GPG-KEY \
-    && mv /opt/public-yum-ol7.repo /etc/yum.repos.d/ && yum -y swap centos-release redhat-release-server && yum -y swap centos-logos oracle-logos \
+    && yum -y install oracle-epel-release-el9 oraclelinux-developer-release-el9 && yum config-manager --set-enabled ol9_codeready_builder \
 \
     && yum makecache && yum -y update \
-    && yum -y install devtoolset-${RH_DTS_VER}-gcc-c++-${RH_DTS_GCC_VER}.el7 devtoolset-${RH_DTS_VER}-libstdc++-devel-${RH_DTS_GCC_VER}.el7 devtoolset-${RH_DTS_VER}-libstdc++-devel-${RH_DTS_GCC_VER}.el7.i686 \
-        devtoolset-${RH_DTS_VER}-make bison flex gperf patch autoconf automake libtool gettext-devel bzip2 unzip file texinfo glibc-devel glibc-devel.i686 llvm-toolset-${RH_LTS_VER}-cmake rh-ruby${RH_RUBY_VER} python3 sudo wget man man-pages \
-        glibc-static.i686 glibc-static.x86_64 \
-\
-        openssl-devel python-sphinx ncurses-devel glib2-devel \
+    && yum -y install gcc-c++ libstdc++-devel.{x86_64,i686} ${RH_GTS_GCC_CXX} ${RH_GTS_LIBSTDCXX_DEVEL} \
+        make bison flex gperf patch autoconf automake libtool gettext-devel bzip2 unzip file texinfo glibc-devel glibc-devel.i686 \
+        cmake ruby python3 pip sudo wget man man-pages glibc-static.{x86_64,i686} libstdc++-static.{x86_64,i686}  glib2-devel  gdb git vim scl-utils \
 \
     && yum clean all \
 \
-    && echo -e "source scl_source enable devtoolset-${RH_DTS_VER}\nsource scl_source enable llvm-toolset-${RH_LTS_VER}\nsource scl_source enable rh-ruby${RH_RUBY_VER}\nunset BASH_ENV PROMPT_COMMAND ENV" > /usr/bin/scl_enable_centos7 \
-    && echo -e "PATH=$MINGW/bin:\$PATH\nPATH=\$(echo -n \$PATH | awk -v RS=: -v FS=: '!(\$1 in a) {a[\$1]; if (length(a) > 1) printf \":\"; printf \$1}')\nexport PATH=\$PATH"  >> /usr/bin/scl_enable_centos7 \
-    && chmod +x /usr/bin/scl_enable_centos7 && source /usr/bin/scl_enable_centos7 \
-    && gem install rake && pip3 install --no-cache-dir -U pip && pip install --no-cache-dir meson ninja virtualenv \
+    && echo -e "source scl_source enable $RH_GTS_GCC_TOOLSET\n\nunset BASH_ENV PROMPT_COMMAND ENV" > /usr/bin/scl_enable_ol9 \
+    && echo -e "PATH=$MINGW/bin:$PYTHON_APPIMAGE/bin:\$PATH\nPATH=\$(echo -n \$PATH | awk -v RS=: -v FS=: '!(\$1 in a) {a[\$1]; if (length(a) > 1) printf \":\"; printf \$1}')\nexport PATH=\$PATH"  >> /usr/bin/scl_enable_ol9 \
+    && chmod +x /usr/bin/scl_enable_ol9 && source /usr/bin/scl_enable_ol9 \
+    && gem install rake && pip install --no-cache-dir meson ninja virtualenv${VIRTUALENV_VER:+==${VIRTUALENV_VER}} uv \
 \
 \
-    && mkdir -p $SRC $BUILDROOT $MINGW && cd $SRC \
-    && curl -L -O https://ftp.gnu.org/gnu/gcc/gcc-$GCC_VER/gcc-$GCC_VER.tar.xz \
-    && curl -L -O https://ftp.gnu.org/gnu/binutils/binutils-$BINUTILS_VER.tar.xz \
-    && curl -L -O https://ftp.gnu.org/gnu/mpfr/mpfr-$MPFR_VER.tar.xz \
-    && curl -L -O https://ftp.gnu.org/gnu/gmp/gmp-$GMP_VER.tar.xz \
-    && curl -L -O https://ftp.gnu.org/gnu/mpc/mpc-$MPC_VER.tar.gz \
+    && mkdir -p $SRC $BUILDROOT $MINGW $PYTHON_APPIMAGE/bin && cd $SRC \
+    && curl -L -O https://sourceware.org/pub/gcc/releases/gcc-$GCC_VER/gcc-$GCC_VER.tar.xz \
+    && curl -L -O https://sourceware.org/pub/binutils/releases/binutils-$BINUTILS_VER.tar.xz \
+    && curl -L -O https://www.mpfr.org/mpfr-$MPFR_VER/mpfr-$MPFR_VER.tar.xz \
+    && curl -L -O https://toolchains.bootlin.com/downloads/releases/sources/gmp-$GMP_VER/gmp-$GMP_VER.tar.xz \
+    && curl -L -O https://www.multiprecision.org/downloads/mpc-$MPC_VER.tar.gz \
     && curl -L -O https://distfiles.macports.org/isl/isl-$ISL_VER.tar.bz2 \
-    && curl -L -o mingw-w64-$MINGW_VER.tar.gz https://github.com/mirror/mingw-w64/archive/v$MINGW_VER.tar.gz \
-    && curl -L -O https://github.com/Kitware/CMake/releases/download/v$CMAKE_VER/cmake-$CMAKE_VER.tar.gz \
+    && curl -L -o mingw-w64-$MINGW_VER.tar.gz https://github.com/mingw-w64/mingw-w64/archive/v$MINGW_VER.tar.gz \
     && curl -L -O https://pkgconfig.freedesktop.org/releases/pkg-config-${PKG_CONFIG_VER}.tar.gz \
     && curl -L -o ruby-install-$RUBY_INSTALL_VER.tar.gz https://github.com/postmodern/ruby-install/archive/v$RUBY_INSTALL_VER.tar.gz \
     && curl -L -o chruby-$CHRUBY_VER.tar.gz https://github.com/postmodern/chruby/archive/v$CHRUBY_VER.tar.gz \
     && curl -L -O https://raw.githubusercontent.com/msys2/MINGW-packages/master/mingw-w64-gcc/0020-libgomp-Don-t-hard-code-MS-printf-attributes.patch \
+    && curl -L --remote-name-all --fail-early $PYTHON_APPIMAGES \
 \
     && tar Jxvf gcc-$GCC_VER.tar.xz && patch -p1 -d $SRC/gcc-$GCC_VER < $SRC/0020-libgomp-Don-t-hard-code-MS-printf-attributes.patch \
     && tar Jxvf binutils-$BINUTILS_VER.tar.xz \
@@ -95,7 +92,6 @@ RUN    sed -i 's;^#\? \?baseurl=http://\(mirror.centos.org\|vault.centos.org\);b
     && tar zxvf mpc-$MPC_VER.tar.gz \
     && tar jxvf isl-$ISL_VER.tar.bz2 \
     && tar zxvf mingw-w64-$MINGW_VER.tar.gz \
-    && tar zxvf cmake-$CMAKE_VER.tar.gz \
     && tar zxvf pkg-config-${PKG_CONFIG_VER}.tar.gz \
     && tar zxvf ruby-install-$RUBY_INSTALL_VER.tar.gz \
     && tar zxvf chruby-$CHRUBY_VER.tar.gz \
@@ -107,23 +103,23 @@ RUN    sed -i 's;^#\? \?baseurl=http://\(mirror.centos.org\|vault.centos.org\);b
 \
     && mkdir -p $BUILDROOT/binutils \
     && cd $BUILDROOT/binutils \
-    && $SRC/binutils-$BINUTILS_VER/configure --prefix=$PREFIX --with-sysroot=$PREFIX \
+    && $SRC/binutils-$BINUTILS_VER/configure --prefix=$MINGW --with-sysroot=$MINGW \
         --target=$TARGET --enable-targets=x86_64-w64-mingw32,i686-w64-mingw32 --build=$BUILD \
     && make -j `nproc` && make install \
 \
     && mkdir -p $BUILDROOT/headers \
     && cd $BUILDROOT/headers \
-    && $SRC/mingw-w64-$MINGW_VER/mingw-w64-headers/configure --prefix=$PREFIX/$TARGET --host=$TARGET --build=$BUILD \
+    && $SRC/mingw-w64-$MINGW_VER/mingw-w64-headers/configure --prefix=$MINGW/$TARGET --host=$TARGET --build=$BUILD --with-default-msvcrt=msvcrt \
     && make install \
 \
-    && ln -s $PREFIX/$TARGET $PREFIX/mingw \
-    && mkdir -p $PREFIX/$TARGET/lib && mkdir -p $PREFIX/$TARGET/lib32 \
-    && ln -s $PREFIX/$TARGET/lib $PREFIX/$TARGET/lib64 \
+    && ln -s $MINGW/$TARGET $MINGW/mingw \
+    && mkdir -p $MINGW/$TARGET/lib && mkdir -p $MINGW/$TARGET/lib32 \
+    && ln -s $MINGW/$TARGET/lib $MINGW/$TARGET/lib64 \
 \
     && mkdir -p $BUILDROOT/gcc \
     && cd $BUILDROOT/gcc \
     && $SRC/gcc-$GCC_VER/configure --build=$BUILD --target=$TARGET \
-        --enable-targets=x86_64-w64-mingw32,i686-w64-mingw32 --prefix=$PREFIX --with-sysroot=$PREFIX \
+        --enable-targets=x86_64-w64-mingw32,i686-w64-mingw32 --prefix=$MINGW --with-sysroot=$MINGW \
         --enable-languages=c,c++ --enable-multiarch --enable-multilib --with-multilib-list=m32,m64 --enable-64bit \
         --enable-threads=posix --enable-shared --enable-fully-dynamic-string \
         --enable-libgomp --enable-lto --disable-libstdcxx-pch \
@@ -131,18 +127,18 @@ RUN    sed -i 's;^#\? \?baseurl=http://\(mirror.centos.org\|vault.centos.org\);b
 \
     && mkdir -p $BUILDROOT/mingw \
     && cd $BUILDROOT/mingw \
-    && $SRC/mingw-w64-$MINGW_VER/mingw-w64-crt/configure --prefix=$PREFIX/$TARGET --with-sysroot=$PREFIX --host=$TARGET \
+    && $SRC/mingw-w64-$MINGW_VER/mingw-w64-crt/configure --prefix=$MINGW/$TARGET --with-sysroot=$MINGW --host=$TARGET --with-default-msvcrt=msvcrt \
         --enable-lib32=yes --enable-lib64=yes \
     && make -j `nproc` && make install \
 \
     && mkdir -p $BUILDROOT/mingw-wpthreads \
     && cd $BUILDROOT/mingw-wpthreads \
-    && $SRC/mingw-w64-$MINGW_VER/mingw-w64-libraries/winpthreads/configure --prefix=$PREFIX/$TARGET --host=$TARGET \
+    && $SRC/mingw-w64-$MINGW_VER/mingw-w64-libraries/winpthreads/configure --prefix=$MINGW/$TARGET --host=$TARGET \
     && make -j `nproc` && make install \
     && rm -rf * \
     && CC="$TARGET-gcc -m32" CCAS="$TARGET-gcc -m32" DLLTOOL="$TARGET-dlltool -m i386" \
         RC="$TARGET-windres -F pe-i386" $SRC/mingw-w64-$MINGW_VER/mingw-w64-libraries/winpthreads/configure \
-        --prefix=$PREFIX/$TARGET --host=$TARGET_X86 --libdir=$PREFIX/$TARGET/lib32 \
+        --prefix=$MINGW/$TARGET --host=$TARGET_X86 --libdir=$MINGW/$TARGET/lib32 \
     && make -j `nproc` && make install \
 \
     && cd $BUILDROOT/gcc \
@@ -150,10 +146,6 @@ RUN    sed -i 's;^#\? \?baseurl=http://\(mirror.centos.org\|vault.centos.org\);b
 \
     && cd $BUILDROOT/gcc \
     && make -j `nproc` && make install \
-\
-    && mkdir -p $BUILDROOT/cmake && cd $BUILDROOT/cmake \
-    && $SRC/cmake-$CMAKE_VER/bootstrap --prefix=/opt/rh/llvm-toolset-$RH_LTS_VER/root/usr --mandir=share/man --sphinx-man -- -DBUILD_CursesDialog=True \
-    && make && make install \
 \
     && mkdir -p $BUILDROOT/pkg-config && cd $BUILDROOT/pkg-config \
     && $SRC/pkg-config-${PKG_CONFIG_VER}/configure --prefix=/usr --disable-host-tool \
@@ -163,21 +155,30 @@ RUN    sed -i 's;^#\? \?baseurl=http://\(mirror.centos.org\|vault.centos.org\);b
     && cd $SRC/chruby-$CHRUBY_VER && make PREFIX=/usr/local install \
     && echo -e "source /usr/local/share/chruby/chruby.sh\n# source /usr/local/share/chruby/auto.sh" > /etc/profile.d/chruby.sh \
 \
+\
+    && /bin/bash -c \
+    '\
+    for py_url in $PYTHON_APPIMAGES; \
+    do \
+        py_appimg=${py_url##https:*/}; \
+        py_fullver=${py_appimg%%-*}; \
+        py_ver=${py_fullver%.*}; \
+        mkdir -p $SRC/$py_ver; cd $SRC/$py_ver; \
+        chmod +x $SRC/$py_appimg; $SRC/$py_appimg --appimage-extract; \
+        mv $SRC/$py_ver/squashfs-root $PYTHON_APPIMAGE/$py_fullver; ln -sr $PYTHON_APPIMAGE/$py_fullver/AppRun $PYTHON_APPIMAGE/bin/$py_ver; \
+        sed -i --follow-symlinks "s|export APPDIR=\"\${tmp%/\*}\"|export APPDIR=\"$PYTHON_APPIMAGE/$py_fullver\"\n    if [ -z \"\${VIRTUAL_ENV}\" ]; then\n        py_exe=\"\$APPDIR/opt/$py_ver/bin/$py_ver\"\n    else\n        py_exe=\"\${here}/_real_python\"\n        if [ ! -f \"\${py_exe}\" ]; then\n            cp \"\$APPDIR/opt/$py_ver/bin/$py_ver\" \"\${py_exe}\"\n        fi\n    fi|; ta; s|\"\$APPDIR/opt/.\+|\"\${py_exe}\" \"\$@\"|; :a" $PYTHON_APPIMAGE/bin/$py_ver; \
+    done; \
+    ' \
+\
+\
     && cd / && rm -rf $SRC $BUILDROOT \
     && strip -s $MINGW/bin/$TARGET-* && strip -s $MINGW/$TARGET/lib/*.dll && strip -s $MINGW/$TARGET/lib32/*.dll \
     && cd $MINGW/libexec/gcc/$TARGET/$GCC_VER && strip -s cc1 cc1plus collect2 lto-wrapper lto1 \
 \
-    && cd $MINGW/lib/gcc/$TARGET/$GCC_VER && $TARGET-gcc -dumpspecs > specs \
-    && sed -i '/\*cpp:/!b; n; s%\(.*\)%\1 -I/opt/mingw32/x86_64-w64-mingw32/include -I/opt/mingw32/i686-w64-mingw32/include -I/opt/mingw32/include%' specs \
-    && sed -i '/\*cc1plus:/!b; n; s%\(.*\)%\1 -I/opt/mingw32/x86_64-w64-mingw32/include -I/opt/mingw32/i686-w64-mingw32/include -I/opt/mingw32/include%' specs \
-    && sed -i '/\*link_libgcc:/!b; n; s%\(.*\)%\1 -L/opt/mingw32/x86_64-w64-mingw32/lib -L/opt/mingw32/i686-w64-mingw32/lib -L/opt/mingw32/lib%' specs \
 \
-    && echo -e ". /usr/bin/scl_enable_centos7" >> /etc/profile.d/enable_mingw_scl.sh \
-    && sed -i 's%^exec .*"\$cmd_options"$%if [ "\$cmd_options" == "" ]; then\n    exec /usr/bin/sudo \$sudo_options\nelse\n    exec /usr/bin/sudo \$sudo_options \
-env PATH="\$PATH" LD_LIBRARY_PATH="\$LD_LIBRARY_PATH" scl enable devtoolset-'${RH_DTS_VER}' llvm-toolset-'${RH_LTS_VER}' rh-ruby'${RH_RUBY_VER}' "\$cmd_options"\nfi%' \
-/opt/rh/devtoolset-${RH_DTS_VER}/root/usr/bin/sudo \
+    && echo -e ". /usr/bin/scl_enable_ol9" >> /etc/profile.d/enable_mingw_scl.sh \
     && sed -i '/^%wheel/!b; s/^/# /; n; n; n; s/^# //' /etc/sudoers \
     && groupadd -g ${NONROOT_GID} ${NONROOT_GRP} && useradd -u ${NONROOT_UID} -g ${NONROOT_GRP} -G wheel -m ${NONROOT_USER} \
     && echo -e "[user]\ndefault=${NONROOT_USER}" >> /etc/wsl.conf
 
-ENV BASH_ENV="/usr/bin/scl_enable_centos7" ENV="/usr/bin/scl_enable_centos7" PROMPT_COMMAND=". /usr/bin/scl_enable_centos7"
+ENV BASH_ENV="/usr/bin/scl_enable_ol9" ENV="/usr/bin/scl_enable_ol9" PROMPT_COMMAND=". /usr/bin/scl_enable_ol9"
