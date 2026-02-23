@@ -197,8 +197,8 @@ RUN    sed -i 's/^tsflags=nodocs$/# tsflags=nodocs/; s/^assumeyes=True$/assumeye
         py_fullver=${py_appimg%%-*}; \
         py_ver=${py_fullver%.*}; \
         mkdir -p $SRC/$py_ver; cd $SRC/$py_ver; \
-        chmod +x $SRC/$py_appimg; $SRC/$py_appimg --appimage-extract; \
-        mv $SRC/$py_ver/squashfs-root $PYTHON_APPIMAGE/$py_fullver; ln -sr $PYTHON_APPIMAGE/$py_fullver/AppRun $PYTHON_APPIMAGE/bin/$py_ver; \
+        chmod +x $SRC/$py_appimg; $SRC/$py_appimg --appimage-extract; mv $SRC/$py_ver/squashfs-root $PYTHON_APPIMAGE/$py_fullver; \
+        chmod -R go+rx $PYTHON_APPIMAGE/$py_fullver; ln -sr $PYTHON_APPIMAGE/$py_fullver/AppRun $PYTHON_APPIMAGE/bin/$py_ver; \
         sed -i --follow-symlinks "s|export APPDIR=\"\${tmp%/\*}\"|export APPDIR=\"$PYTHON_APPIMAGE/$py_fullver\"\n    if [ -z \"\${VIRTUAL_ENV}\" ]; then\n        py_exe=\"\$APPDIR/opt/$py_ver/bin/$py_ver\"\n    else\n        py_exe=\"\${here}/_real_python\"\n        if [ ! -f \"\${py_exe}\" ]; then\n            cp \"\$APPDIR/opt/$py_ver/bin/$py_ver\" \"\${py_exe}\"\n        fi\n    fi|; ta; s|\"\$APPDIR/opt/.\+|\"\${py_exe}\" \"\$@\"|; :a" $PYTHON_APPIMAGE/bin/$py_ver; \
     done; \
     ' \
