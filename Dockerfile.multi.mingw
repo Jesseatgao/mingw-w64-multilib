@@ -59,8 +59,8 @@ RUN    sed -i 's/^tsflags=nodocs$/# tsflags=nodocs/; s/^assumeyes=True$/assumeye
     && yum -y install oracle-epel-release-el9 oraclelinux-developer-release-el9 && yum config-manager --set-enabled ol9_codeready_builder \
 \
     && yum makecache && yum -y update \
-    && yum -y install gcc-c++ libstdc++-devel.{x86_64,i686} ${RH_GTS_GCC_CXX} ${RH_GTS_LIBSTDCXX_DEVEL} \
-        make bison flex gperf patch autoconf automake libtool gettext-devel bzip2 unzip file texinfo glibc-devel glibc-devel.i686 \
+    && yum -y install gcc-c++ libstdc++-devel.{x86_64,i686} ${RH_GTS_GCC_CXX} ${RH_GTS_LIBSTDCXX_DEVEL} glibc-devel.{x86_64,i686} \
+        make bison flex gperf patch autoconf automake libtool gettext-devel bzip2 unzip file texinfo perl \
         cmake ruby python3 pip sudo wget man man-pages glibc-static.{x86_64,i686} libstdc++-static.{x86_64,i686}  glib2-devel  gdb git vim scl-utils \
 \
     && yum clean all \
@@ -179,6 +179,8 @@ RUN    sed -i 's/^tsflags=nodocs$/# tsflags=nodocs/; s/^assumeyes=True$/assumeye
         sed -i "s/include  *\"mingw\.\(condition_variable\|future\|mutex\|shared_mutex\|thread\)\.h\"/include \"\1\"/g" "${full_std_header}";\
     done\
     '\
+    && sed -i "s/swap(thread\&\& other)/swap(thread\& other)/" $MINGW/$TARGET/include/c++/$GCC_VER/thread \
+    && sed -i "s/swap(std::forward<thread>(other))/swap(other)/" $MINGW/$TARGET/include/c++/$GCC_VER/thread \
 \
     && mkdir -p $BUILDROOT/pkg-config && cd $BUILDROOT/pkg-config \
     && $SRC/pkg-config-${PKG_CONFIG_VER}/configure --prefix=/usr --disable-host-tool \
