@@ -20,11 +20,11 @@ ARG LDFLAGS=
 ARG GCC_VER=15.2.0
 ARG BINUTILS_VER=2.46.0
 ARG MPFR_VER=4.2.2
-ARG GMP_VER=6.2.1
-ARG MPC_VER=1.3.1
+ARG GMP_VER=6.3.0
+ARG MPC_VER=1.4.0
 ARG ISL_VER=0.25
 
-ARG MINGW_VER=13.0.0
+ARG MINGW_VER=14.0.0
 
 # Red Hat GCC Toolset
 ARG RH_GTS_VER=
@@ -76,7 +76,7 @@ RUN    sed -i 's/^tsflags=nodocs$/# tsflags=nodocs/; s/^assumeyes=True$/assumeye
     && curl -L -O https://sourceware.org/pub/binutils/releases/binutils-$BINUTILS_VER.tar.xz \
     && curl -L -O https://www.mpfr.org/mpfr-$MPFR_VER/mpfr-$MPFR_VER.tar.xz \
     && curl -L -O https://toolchains.bootlin.com/downloads/releases/sources/gmp-$GMP_VER/gmp-$GMP_VER.tar.xz \
-    && curl -L -O https://www.multiprecision.org/downloads/mpc-$MPC_VER.tar.gz \
+    && curl -L -O https://www.multiprecision.org/downloads/mpc-$MPC_VER.tar.xz \
     && curl -L -O https://distfiles.macports.org/isl/isl-$ISL_VER.tar.bz2 \
     && curl -L -o mingw-w64-$MINGW_VER.tar.gz https://github.com/mingw-w64/mingw-w64/archive/v$MINGW_VER.tar.gz \
     && curl -L -O https://pkgconfig.freedesktop.org/releases/pkg-config-${PKG_CONFIG_VER}.tar.gz \
@@ -89,7 +89,7 @@ RUN    sed -i 's/^tsflags=nodocs$/# tsflags=nodocs/; s/^assumeyes=True$/assumeye
     && tar Jxvf binutils-$BINUTILS_VER.tar.xz \
     && tar Jxvf mpfr-$MPFR_VER.tar.xz \
     && tar Jxvf gmp-$GMP_VER.tar.xz \
-    && tar zxvf mpc-$MPC_VER.tar.gz \
+    && tar Jxvf mpc-$MPC_VER.tar.xz \
     && tar jxvf isl-$ISL_VER.tar.bz2 \
     && tar zxvf mingw-w64-$MINGW_VER.tar.gz \
     && tar zxvf pkg-config-${PKG_CONFIG_VER}.tar.gz \

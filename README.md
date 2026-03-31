@@ -2,13 +2,13 @@
 MinGW-w64: cross compile multilib toolchain docker image based on Oracle Linux 9 targetting win64 and win32
 
 ## Docker Images with Tags
-* `cgdoc/mingw-w64-multilib:posix-v1.8-el9`
+* `cgdoc/mingw-w64-multilib:posix-v1.9-el9`
     * Source
-        * [Dockerfile](https://github.com/Jesseatgao/mingw-w64-multilib/releases/tag/posix-v1.8-el9)
+        * [Dockerfile](https://github.com/Jesseatgao/mingw-w64-multilib/releases/tag/posix-v1.9-el9)
     * Base Image
         * Oracle Linux 9
     * Cross Compilation Toolchain
-        * `MinGW-w64`: 13.0.0
+        * `MinGW-w64`: 14.0.0
         * `GCC`: 15.2.0
         * `Binutils`: 2.46.0
         * Thread model: `posix`
@@ -22,7 +22,7 @@ MinGW-w64: cross compile multilib toolchain docker image based on Oracle Linux 9
     * Build System
         * `make`: GNU Make 4.3
         * `cmake`: 3.26.5
-        * `meson`: 1.10.1
+        * `meson`: 1.10.2
         * `rake`: Ruby Make 13.3.1 (Ruby 3.0)
     * Repos
         * Oracle Linux 9 BaseOS
@@ -31,9 +31,9 @@ MinGW-w64: cross compile multilib toolchain docker image based on Oracle Linux 9
         * Oracle Linux 9 Developer
         * Oracle Linux 9 EPEL
 
-* `cgdoc/mingw-w64-multilib:win32-v1.8-el9`
+* `cgdoc/mingw-w64-multilib:win32-v1.9-el9`
     * Source
-        * [Dockerfile](https://github.com/Jesseatgao/mingw-w64-multilib/releases/tag/win32-v1.8-el9)
+        * [Dockerfile](https://github.com/Jesseatgao/mingw-w64-multilib/releases/tag/win32-v1.9-el9)
     * Base Image
         * Oracle Linux 9
     * Cross Compilation Toolchain
@@ -70,9 +70,9 @@ MinGW-w64: cross compile multilib toolchain docker image based on Oracle Linux 9
     * [Cross compile common devel packages(header files and libs)](https://github.com/Jesseatgao/mingw-w64-libs)
     * [Cross compile MKVToolNix (mkvmerge)](https://github.com/Jesseatgao/MKVToolNix-static-builds)
 * working with WSL:
-1. Create a temporary container from an image, say, cgdoc/mingw-w64-multilib:posix-v1.8-el9
+1. Create a temporary container from an image, say, cgdoc/mingw-w64-multilib:posix-v1.9-el9
 ```shell
-docker create --name RHEL9-extended cgdoc/mingw-w64-multilib:posix-v1.8-el9
+docker create --name RHEL9-extended cgdoc/mingw-w64-multilib:posix-v1.9-el9
 ```
 2. Export the container as a tar archive
 ```shell
